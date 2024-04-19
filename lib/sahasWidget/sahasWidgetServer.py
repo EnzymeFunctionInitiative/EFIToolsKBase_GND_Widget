@@ -17,12 +17,20 @@ from jsonrpcbase import JSONRPCService, InvalidParamsError, KeywordError, \
 from jsonrpcbase import ServerError as JSONServerError
 
 from biokbase import log
-from sahasWidget.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.authclient import KBaseAuth as _KBaseAuth
 
 try:
     from ConfigParser import ConfigParser
 except ImportError:
     from configparser import ConfigParser
+
+
+# BEGIN DS-SERVICE-WIDGET-IMPORT
+# Injected by the Dynamic Service Widget Tool
+#
+from widget.lib.widget_support import handle_widget_request
+#
+# END DS-SERVICE-WIDGET-IMPORT
 
 DEPLOY = 'KB_DEPLOYMENT_CONFIG'
 SERVICE = 'KB_SERVICE_NAME'
@@ -353,6 +361,19 @@ class Application(object):
         ctx = MethodContext(self.userlog)
         ctx['client_ip'] = getIPAddress(environ)
         status = '500 Internal Server Error'
+
+        # BEGIN DS-SERVICE-WIDGET-PATH-HANDLER
+        # Injected by the Dynamic Service Widget Tool
+        #
+        response = handle_widget_request(environ)
+        if response is not None:
+            status, response_headers, content = response
+            start_response(status, response_headers)
+            return [content]
+        #
+        # END DS-SERVICE-WIDGET-PATH-HANDLER
+
+
 
         try:
             body_size = int(environ.get('CONTENT_LENGTH', 0))

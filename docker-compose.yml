@@ -1,0 +1,20 @@
+version: '3.6'
+networks:
+  kbase-dev:
+    external: true
+    name: kbase-dev
+services:
+  sahaswidget:
+    build:
+      context: .
+    container_name: sahaswidget
+    hostname: sahaswidget
+    dns: 8.8.8.8
+    volumes:
+      - .:/kb/module
+    networks:
+      - kbase-dev
+    ports:
+      - "${PORT:-5100}:5000"
+    environment:
+      - KBASE_ENDPOINT

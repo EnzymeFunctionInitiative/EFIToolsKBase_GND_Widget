@@ -4,6 +4,12 @@ import logging
 import os
 
 from installed_clients.KBaseReportClient import KBaseReport
+# BEGIN DS-WIDGET IMPORT
+# Injected by the Dynamic Service Widget Tool
+#
+from widget.lib.widget_support import WidgetSupport
+#
+# END DS-WIDGET IMPORT
 #END_HEADER
 
 
@@ -33,10 +39,23 @@ class sahasWidget:
     # be found
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
-        self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = config['scratch']
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
+        # BEGIN DS-WIDGET SETUP-WIDGETS
+        # Injected by the Dynamic Service Widget Tool
+        #
+
+        # We take the service packcage name from first component of the Python module path.
+        service_package_name = __name__.split('.')[:1][0]
+
+        WidgetSupport(
+            service_config = config,
+            service_package_name = service_package_name,
+            service_instance_hash = self.GIT_COMMIT_HASH,
+        ).set_global()
+
+        # END DS-WIDGET SETUP-WIDGETS
         #END_CONSTRUCTOR
         pass
 
@@ -71,6 +90,8 @@ class sahasWidget:
         #BEGIN_STATUS
         returnVal = {'state': "OK",
                      'message': "",
+                     'environ': ctx.get('environ'),
+                     'environ_omitted': ctx.get('environ_omitted'),
                      'version': self.VERSION,
                      'git_url': self.GIT_URL,
                      'git_commit_hash': self.GIT_COMMIT_HASH}

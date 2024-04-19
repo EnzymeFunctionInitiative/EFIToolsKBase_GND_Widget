@@ -23,6 +23,10 @@ compile:
 		--out $(LIB_DIR) \
 		--pysrvname $(SERVICE_CAPS).$(SERVICE_CAPS)Server \
 		--pyimplname $(SERVICE_CAPS).$(SERVICE_CAPS)Impl;
+	# Insert the Dynamic Server Widget code into the server file
+	# BEGIN DS-WIDGET COMPILE-FIX
+	./widget/scripts/fix-server-file.sh "${SERVICE_CAPS}"
+	# END DS-WIDGET COMPILE-FIX
 
 build:
 	chmod +x $(SCRIPTS_DIR)/entrypoint.sh
