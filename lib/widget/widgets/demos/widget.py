@@ -8,6 +8,7 @@ ROUTES = [
     'protein-structures-viewer',
     'generic-widgets',
     'demo-genome-viewer',
+    'ssn-generator',
 ]
 
 

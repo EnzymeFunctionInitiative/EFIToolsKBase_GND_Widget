@@ -1,0 +1,156 @@
+<ul class="nav nav-tabs" role="tablist" id="ssn-generator-tabs">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="test-tab" data-bs-toggle="tab" data-bs-target="#test" type="button" role="tab"
+        aria-controls="test" aria-selected="true">
+        Test
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="sequence-blast-tab" data-bs-toggle="tab" data-bs-target="#sequence-blast" type="button"
+          role="tab" aria-controls="sequence-blast" aria-selected="false">
+          Sequence BLAST
+      </button>
+  </li>
+  <li class="nav-item" role="presentation">
+      <button class="nav-link" id="families-tab" data-bs-toggle="tab" data-bs-target="#families" type="button" role="tab"
+          aria-controls="families" aria-selected="true">
+          Families
+      </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="fasta-tab" data-bs-toggle="tab" data-bs-target="#fasta" type="button" role="tab"
+        aria-controls="fasta" aria-selected="true">
+        FASTA
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="accession-ids-tab" data-bs-toggle="tab" data-bs-target="#accession-ids" type="button" role="tab"
+        aria-controls="accession-ids" aria-selected="true">
+        Accession IDs
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="ssn-utilities-tab" data-bs-toggle="tab" data-bs-target="#ssn-utilities" type="button" role="tab"
+        aria-controls="ssn-utilities" aria-selected="true">
+        SSN Utilities
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content p-4" id="ssn-generator-tab-content">
+  <div class="tab-pane fade pt-3 dataTablesOverride-ScrollingFlexFix" id="test" role="tabpanel" aria-labelledby="test-tab">
+    <div class="d-flex flex-column gap-4">
+      <b>ISBN:</b>
+      <input type="text" class="form-control" id="isbnInput" value="9780385472579">
+      <div class="d-flex">
+        <button type="button" class="btn btn-primary flex-shrink-0" id="generateBtn">Generate</button>
+      </div>
+      <div id="bookCoverContainer"></div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade pt-3 dataTablesOverride-ScrollingFlexFix show active" id="sequence-blast" role="tabpanel" aria-labelledby="sequence-blast-tab">
+    <b>Generate a SSN for a single protein and its closest homologues in the UniProt, UniRef90, or UniRef50 database.</b><br><br>
+
+    The input sequence is used as the query for a search of the UniProt, UniRef90, or UniRef50 database using BLAST. 
+    For the UniRef90 and UniRef50 databases, the sequence of the cluster ID (representative sequence) is used for 
+    the BLAST.<br><br>
+
+    The database is selected using the BLAST Retrieval Options.<br><br>
+
+    An all-by-all BLAST is performed to obtain the similarities between sequence pairs to calculate edge values to generate the SSN.<br><br>
+
+    <div class="px-5 mb-4">
+      <b>Query Sequence:</b><br><br>
+      <input type="text" class="form-control" id="query-sequence"><br>
+      Input a single <b>protein sequence</b> only. The default maximum number fo retrieved sequences is 1,000.<br>
+    </div>
+
+    <div class="accordion" id="accordionExample">
+      <div class="accordion-item">
+          <h2 class="accordion-header" id="accordionHeading">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#accordionCollapse" aria-expanded="true" aria-controls="accordionCollapse">
+                  BLAST Retrieval Options
+              </button>
+          </h2>
+          <div id="accordionCollapse" class="accordion-collapse collapse" aria-labelledby="accordionHeading" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <div class="d-flex gap-4 justify-content-start align-items-center">
+                  <b>UniProt BLAST query e-value:</b>
+                  <input type="text" class="form-control flex-grow-0" id="e-value" value="5">
+                  Negative log of e-value for retrieving similar sequences (≥ 1; default: 5)
+                </div><br>
+                <div class="mx-5">
+                  Input a larger e-value (smaller negative log) to retrieve homologues if the 
+                  query sequence is short. Input a smaller e-value (larger negative log) to 
+                  retrieve more similar homologues.
+                </div><br>
+                <div class="d-flex gap-4 justify-content-start align-items-center">
+                  <b>Maximum number of sequences retrieved:</b>
+                  <input type="text" class="form-control flex-grow-0" id="max-sequences" value="1000">
+                  (≤ 10,000, default: 1,000)
+                </div><br>
+                <div class="d-flex gap-4 justify-content-start align-items-center">
+                  <b>Sequence database:</b>
+                  <select class="form-select" id="e-value">
+                      <option value="uniprot" selected>UniProt</option>
+                      <option value="uniref90">UniRef90</option>
+                      <option value="uniref50">UniRef50</option>
+                  </select>
+                  (UniProt, UniRef90, or UniRef50; default UniProt)
+              </div><br>
+              <div class="mx-5">
+                Select the sequence database to BLAST against.
+              </div><br>
+          </div>
+      </div>
+    </div><br>
+    <div class="d-flex gap-4 justify-content-start align-items-center">
+      <b>Job name:</b>
+      <input type="text" class="form-control flex-grow-0" id="job-name">
+      (required)
+    </div><br>
+    <div class="d-flex gap-4 justify-content-start align-items-center">
+      <b>E-mail address:</b>
+      <input type="text" class="form-control flex-grow-0" id="email-address" placeholder="Enter your e-mail address">
+    </div><br>
+    You will be notified by e-mail when your submission has been processed.<br><br><br>
+    <div class="d-flex justify-content-center align-items-center">
+      <button type="button" class="btn btn-primary flex-shrink-0" id="submit-analysis">Submit Analysis</button>
+    </div>
+  </div>
+
+  <div class="tab-pane fade pt-3 dataTablesOverride-ScrollingFlexFix" id="families" role="tabpanel"aria-labelledby="families-tab">
+    <p>
+      Families tab content
+    </p>
+  </div>
+  
+  <div class="tab-pane fade pt-3 dataTablesOverride-ScrollingFlexFix" id="fasta" role="tabpanel"aria-labelledby="fasta-tab">
+    <p>
+      FASTA tab content
+    </p>
+  </div>
+
+  <div class="tab-pane fade pt-3 dataTablesOverride-ScrollingFlexFix" id="accession-ids" role="tabpanel"aria-labelledby="accession-ids-tab">
+    <p>
+      Accession IDs tab content
+    </p>
+  </div>
+
+  <div class="tab-pane fade pt-3 dataTablesOverride-ScrollingFlexFix" id="ssn-utilities" role="tabpanel"aria-labelledby="ssn-utilities-tab">
+    <p>
+      SSN Utilities tab content
+    </p>
+  </div>
+</div>
+
+<script>
+  document.getElementById('generateBtn').addEventListener('click', () => {
+      const isbn = document.getElementById('isbnInput').value;
+
+      // Construct the API endpoint URL
+      const apiUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+      bookCoverContainer.innerHTML = `<img src="${apiUrl}" alt="Book Cover">`;
+  });
+</script>

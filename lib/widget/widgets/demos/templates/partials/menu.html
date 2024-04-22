@@ -72,3 +72,14 @@
         <i class="bi bi-arrow-right-circle" style="font-size: 150%; visibility: hidden; "></i>
     {% endif %}
 </div>
+
+<div class="demo-page-nav-item"> 
+    <a class="btn btn-secondary"  href="{{ widget_config.base_path }}/widgets/demos?demo=ssn-generator">
+        SSN Generator
+    </a>
+    {% if requested_demo == "ssn-generator" %}
+        <i class="bi bi-arrow-right-circle" style="font-size: 150%;"></i>
+    {% else %}
+        <i class="bi bi-arrow-right-circle" style="font-size: 150%; visibility: hidden; "></i>
+    {% endif %}
+</div>
