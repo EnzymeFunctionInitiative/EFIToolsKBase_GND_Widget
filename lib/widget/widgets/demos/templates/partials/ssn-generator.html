@@ -208,7 +208,7 @@
                     <li>
                                                 <div id="page-tools" class="initial-hidden">
                             <i class="fas fa-wrench" aria-hidden="true"></i> <span class="sidebar-header">Tools</span>
-                            <div class="btn-group" style="width: 100%; margin-button: 30px">
+                            <div class="btn-group" style="width: 100%; margin-bottom: 30px">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                     Export Data <span class="caret"></span>
                                 </button>
@@ -361,7 +361,7 @@
                     var gndVars = new GndVars();
                     // Initialize constant vars
                     gndVars.setPageSize(200);
-                    gndVars.setUrlPath("get_gnd_data.php");
+                    gndVars.setUrlPath("http://localhost:5101/api/data");
                     gndVars.setAuthString("direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617");
                     gndVars.setWindow(10);
                     if (superfamilySupport)

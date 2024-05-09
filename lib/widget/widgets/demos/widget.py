@@ -1,4 +1,5 @@
 from widget.lib.widget_base import WidgetBase
+import json
 
 ROUTES = [
     'home',
@@ -8,8 +9,12 @@ ROUTES = [
     'protein-structures-viewer',
     'generic-widgets',
     'demo-genome-viewer',
-    'ssn-generator',
+    'ssn-generator'
 ]
+
+DATA_ROUTES = {
+    'json-data'
+}
 
 
 class Widget(WidgetBase):
@@ -29,8 +34,19 @@ class Widget(WidgetBase):
                     }
                 }
             }
+        elif demo in DATA_ROUTES:
+            return {
+                "demo": [f"partials/{demo}.html", "error.html"],
+                "requested_demo": demo
+            }
         else:
             return {
                 "demo": "partials/not-found.html",
                 "requested_demo": demo
             }
+    
+    def render(self) -> str:
+        if (self.get_param('demo') == 'json-data'):
+            return json.dumps(self.context()).encode('utf-8')
+        else:
+            return super().render()
