@@ -10,14 +10,16 @@
         <title>Genome Neighborhood Diagrams for job #30093</title>
 
         <!-- Bootstrap core CSS -->
-        <link href="/widgets/assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/widgets/assets/css/menu-sidebar.css" rel="stylesheet">
-        <link href="/widgets/assets/css/all.min.css" rel="stylesheet">
+        <link href="{{ widget_asset_url }}/css/bootstrap.min.css" rel="stylesheet">
+        <link href="{{ widget_asset_url }}/css/menu-sidebar.css" rel="stylesheet">
+        <link href="{{ widget_asset_url }}/css/all.min.css" rel="stylesheet">
 
 
         <!-- Custom styles for this template -->
-        <link href="/widgets/assets/css/diagrams.css?v=20" rel="stylesheet">
-        <link href="/widgets/assets/css/alert.css" rel="stylesheet">
+        <link href="{{ widget_asset_url }}/css/diagrams.css?v=20" rel="stylesheet">
+        <link href="{{ widget_asset_url }}/css/alert.css" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
 <!--
         <script src="js/app.js" type="application/javascript"></script>
         <script src="js/arrows.js" type="application/javascript"></script>
@@ -31,7 +33,7 @@
             #header-job-info div { line-height: normal; }
             @font-face {
                 font-family:'FontAwesome';
-                src:url("/vendor/fortawesome/font-awesome/webfonts/fa-solid-900.ttf") format("truetype");
+                src:url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/webfonts/fa-solid-900.ttf") format("truetype");
             }
         </style>
 
@@ -49,7 +51,7 @@
                 <tr>
                     <td style="width: 175px">
                         <a href="index.php"><img
-                            src="/widgets/assets/img/efignt_logo55.png" width="157" height="55" alt="EFI GNT Logo" style="margin-left:10px;" /></a>
+                            src="{{ widget_asset_url }}/img/efignt_logo55.png" width="157" height="55" alt="EFI GNT Logo" style="margin-left:10px;" /></a>
                     </td>
                                         <td id="header-body-title" class="header-title">
                         Genome Neighborhood Diagrams for job #30093                        <span id="cluster-uniref-id" class="display: none"><br></span>
@@ -123,7 +125,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-accordion-panel-pfam">
-              <span class="accordion-arrow glyphicon glyphicon-triangle-right" aria-hidden="true"></span> <a class="accordion-toggle">PFam Families</a>
+              <span class="accordion-arrow fas fa-caret-right" aria-hidden="true"></span> <a class="accordion-toggle">PFam Families</a>
             </h4>
         </div>
         <div id="filter-accordion-panel-pfam" class="panel-collapse collapse">
@@ -135,7 +137,7 @@
     </div>    <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-accordion-panel-interpro">
-              <span class="accordion-arrow glyphicon glyphicon-triangle-right" aria-hidden="true"></span> <a class="accordion-toggle">InterPro Families</a>
+              <span class="accordion-arrow fas fa-caret-right" aria-hidden="true"></span> <a class="accordion-toggle">InterPro Families</a>
             </h4>
         </div>
         <div id="filter-accordion-panel-interpro" class="panel-collapse collapse">
@@ -280,7 +282,7 @@
             <table style="width:100%;height:60px">
                 <tr>
                     <td style="width: 275px;">
-                        <img src="/widgets/assets/img/efi_logo45.png" width="150" height="45" alt="EFI Logo" style="margin-left:45px" />
+                        <img src="{{ widget_asset_url }}/img/efi_logo45.png" width="150" height="45" alt="EFI Logo" style="margin-left:45px" />
                     </td>
                                         <td>
                         <div class="initial-hidden">
@@ -307,28 +309,28 @@
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
 
-        <script src="/widgets/assets/js/snap.svg-min.js" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/snap.svg-min.js" content-type="text/javascript"></script>
 
         <!-- jQuery -->
-        <script src="/widgets/assets/js/jquery.min.js"></script>
+        <script src="{{ widget_asset_url }}/js/jquery.min.js"></script>
         <!-- Bootstrap Core JavaScript -->
-        <script src="/widgets/assets/js/bootstrap.min.js"></script>
+        <script src="{{ widget_asset_url }}/js/bootstrap.min.js"></script>
 
-        <script src="/widgets/assets/js/color.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/control.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/data.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/filter.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/http.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/message.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/popup.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/ui.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/vars.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/view.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/ui-filter.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/app-specific.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/svg-util.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/uniref.js?v=20" content-type="text/javascript"></script>
-        <script src="/widgets/assets/js/bigscape.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/color.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/control.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/data.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/filter.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/http.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/message.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/popup.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/ui.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/vars.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/view.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/ui-filter.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/app-specific.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/svg-util.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/uniref.js?v=20" content-type="text/javascript"></script>
+        <script src="{{ widget_asset_url }}/js/bigscape.js?v=20" content-type="text/javascript"></script>
         <script type="application/javascript">
             $(document).ready(function() {
                 $("#filter-cb-toggle").prop("checked", false);
@@ -355,7 +357,7 @@
                     // Create objects
                     var gndVars = new GndVars();
                     // Initialize constant vars
-                    gndVars.setPageSize(200);
+                    gndVars.setPageSize(20);
                     gndVars.setUrlPath("http://localhost:5101/api/data");
                     gndVars.setAuthString("direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617");
                     gndVars.setWindow(10);

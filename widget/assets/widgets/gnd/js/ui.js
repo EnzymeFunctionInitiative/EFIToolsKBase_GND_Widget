@@ -199,7 +199,7 @@ class GndUi {
             var obj = $(e)
                 .prev(".panel-heading")
                 .find(".accordion-arrow")
-                .toggleClass("glyphicon-triangle-right glyphicon-triangle-bottom");
+                .toggleClass("fa-caret-right fa-caret-down");
         };
         $(pfamId).on("show.bs.collapse", function() {
             that.uiFilter.setFamilySelection("pfam");

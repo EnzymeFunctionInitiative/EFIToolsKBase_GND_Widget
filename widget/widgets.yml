@@ -13,7 +13,7 @@ widgets:
   - name: config
     type: python
 
-   # Viewers
+    # Viewers
 
   - name: media_viewer
     type: static
@@ -33,7 +33,6 @@ widgets:
   #   type: python
   #   module: genome_viewer
 
-
   # Generic
 
   - name: demo_genome_edit_classification_viewer
@@ -52,3 +51,6 @@ widgets:
     path: minimal_example
     title: Minimal Javascript Widget Example
     description: A minimal example of a Javascript template
+
+    name: gnd
+    type: python
