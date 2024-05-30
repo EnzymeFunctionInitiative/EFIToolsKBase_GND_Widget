@@ -137,7 +137,6 @@ class GND:
       "taxon_id": result[14],
       "anno_status": result[15],
       "desc": result[16],
-      "evalue": result[17],
       "family_desc": family_values["family_desc"],
       "ipro_family_desc": family_values["ipro_family_desc"],
       "pfam": family_values["family"],
@@ -151,13 +150,16 @@ class GND:
       "rel_start": 0,
       "rel_width": 0,
     }
+    if result[17] != None:
+      attributes["evalue"] = result[17]
     return attributes
   
-  def get_neighbors(self, attr):
+  def get_neighbors(self, n, idx):
     neighbors = []
-    my_id = attr["id"]
-    n = attr["num"]
-    rows = self.fetch_data(f"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE id = '{my_id}'")
+    query = "SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '" + str(idx + 1) + "'"
+    query += " ORDER BY num"
+    
+    rows = self.fetch_data(query)
     for row in rows:
       if row[2] < n - self.window or row[2] > n + self.window: continue
       neighbor = {}
@@ -201,7 +203,7 @@ class GND:
     for idx in range(start_index, end_index + 1):
       elem = {}
       elem["attributes"] = self.get_attributes(idx)
-      elem["neighbors"] = self.get_neighbors(elem["attributes"])
+      elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
       self.output["data"].append(elem)
     
   def compute_rel_coords(self):
@@ -271,7 +273,6 @@ class GND:
         self.get_arrow_data()
     except Exception as e:
       self.error_output(str(e))
-
     self.output["totaltime"] = time.time() - self.output["totaltime"]
     json_data = json.dumps(self.output).encode('utf-8')
     return json_data
@@ -285,10 +286,10 @@ class Widget(WidgetBase):
     
     def render(self) -> str:
         if self.has_param('query'):
-            my_gnd = GND(db="30095.sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
+            my_gnd = GND(db="30093_.sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
             return my_gnd.generate_json()
         elif self.has_param('range'):
-            my_gnd = GND(db="30095.sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')))
+            my_gnd = GND(db="30093_.sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')))
             return my_gnd.generate_json()
         return super().render()
 
