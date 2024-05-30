@@ -284,11 +284,11 @@ class Widget(WidgetBase):
         }
     
     def render(self) -> str:
-        if self.get_param('query') == '1':
-            my_gnd = GND(db="30093_.sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
+        if self.has_param('query'):
+            my_gnd = GND(db="30095.sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
             return my_gnd.generate_json()
         elif self.has_param('range'):
-            my_gnd = GND(db="30093_.sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')))
+            my_gnd = GND(db="30095.sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')))
             return my_gnd.generate_json()
         return super().render()
 
