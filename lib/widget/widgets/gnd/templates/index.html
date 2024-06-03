@@ -233,7 +233,12 @@
 
                             <div>
                                 <button type="button" class="btn btn-default tool-button" id="show-uniprot-ids">
-                                    <i class="far fa-thumbs-up" aria-hidden="true"></i>  UniProt IDs
+                                    {% if type == "Sequence BLAST" %}
+                                        <i class="far fa-thumbs-up" aria-hidden="true"></i> UniProt IDs
+                                    {% else %}
+                                        <i class="far fa-thumbs-up" aria-hidden="true"></i> Recognized UniProt IDs
+                                    {% endif %}
+                                </button>
                                 </button>
                             </div>
                             <div>
@@ -435,16 +440,15 @@
                     var data = filterUi.getLegendSvg();//TODO
                     var legendSvgMarkup = escape(data[1]);
                     
-                    var dlForm = $("<form></form>");
-                    dlForm.attr("method", "POST");
-                    dlForm.attr("action", "download_diagram_image.php");
-                    dlForm.append('<input type="hidden" name="type" value="svg">');
-                    dlForm.append('<input type="hidden" name="name" value="">');
-                    dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
-                    dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
-                    $("#download-forms").append(dlForm);
-                    dlForm.submit();
+                    var dlLink = document.createElement("a");
+                    dlLink.href = "data:image/svg+xml;charset=utf-8," + svg;
+                    dlLink.download = "{{name}}.svg";
+                    dlLink.style.display = "none";
+                    document.body.appendChild(dlLink);
+                    dlLink.click();
+                    document.body.removeChild(dlLink);
                 });
+
                 $("#export-gene-graphics-button").click(function(e) {
                     var url = control.getGetUrl(0, control.getMaxViewIndex());
                     url = url.replace("get_gnd_data.php", "get_gene_graphics.php");

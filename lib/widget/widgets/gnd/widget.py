@@ -36,6 +36,8 @@ class GndParams:
 			self.gnn_type = "Sequence BLAST"
 		if type != None  and type != ""and type == "FASTA":
 			self.gnn_type = "FASTA header ID lookup"
+		if type != None  and type != ""and type == "ID_LOOKUP":
+			self.gnn_type = "Sequence ID lookup"
 
 		return {
 			"name": self.gnn_name,
