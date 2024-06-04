@@ -285,7 +285,6 @@ class Widget(WidgetBase):
         }
     
     def render(self) -> str:
-        print("HEY" + self.get_param('direct-id'))
         if self.has_param('query'):
             my_gnd = GND(db=self.get_param('direct-id') + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
             return my_gnd.generate_json()
