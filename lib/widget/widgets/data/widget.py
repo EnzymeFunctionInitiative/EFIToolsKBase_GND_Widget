@@ -276,7 +276,6 @@ class GND:
     self.output["totaltime"] = time.time() - self.output["totaltime"]
     json_data = json.dumps(self.output).encode('utf-8')
     return json_data
-  
 
 class Widget(WidgetBase):
     def context(self):

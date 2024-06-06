@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>Genome Neighborhood Diagrams for {{ title }}</title>
+        <!-- <title>Genome Neighborhood Diagrams for {{ title }}</title> -->
 
         <!-- Bootstrap core CSS -->
         <link href="{{ widget_asset_url }}/css/bootstrap.min.css" rel="stylesheet">
@@ -432,7 +432,7 @@
                 $("#show-unmatched-ids").click(function(e) {
                         $("#unmatched-ids-modal").modal("show");
                     });
-
+                
                 $("#help-modal-button").click(function(e) {
                     $("#help-modal").modal("show");
                 });
@@ -457,6 +457,10 @@
                     dlLink.click();
                     document.body.removeChild(dlLink);
                 });
+
+                saveDataFn = function(data) {
+                    console.log(data)
+                };
 
                 $("#export-gene-graphics-button").click(function(e) {
                     var url = control.getGetUrl(0, control.getMaxViewIndex());
@@ -524,10 +528,7 @@
                         </table>
                     </div>
                     <div class="modal-footer">
-                        <a href="download_files.php?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&type=uniprot"
-                            title="Download the list of UniProt IDs that are contained within the diagrams.">
-                                <button type="button" class="btn btn-default" id="save-uniprot-ids-btn">Save to File</button>
-                        </a>
+                        <button type="button" class="btn btn-default" id="save-uniprot-ids-btn">Save to File</button>
                             <!--                            onclick='saveDataFn("30093__UniProt_IDs.txt", "uniprot-ids")'>Save to File</button>-->
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
@@ -544,11 +545,7 @@
                     </div>
                     <div class="modal-body" id="unmatched-ids">{{ unmatched_id_modal_text }}</div>
                     <div class="modal-footer">
-                        <a href="download_files.php?direct-id=30095&key=747b11725bf300247ac6c396dcd48f19c13a265b&type=unmatched"
-                            title="Download the list of IDs that were not matched to a UniProt ID.">
-                                <button type="button" class="btn btn-default" id="save-unmatched-ids-btn">Save to File</button>
-                        </a>
-                            <!--                            onclick='saveDataFn("30095_methyltransferase_Unmatched.txt", "unmatched-ids")'>Save to File</button>-->
+                        <button type="button" class="btn btn-default" id="save-unmatched-ids-btn">Save to File</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->
@@ -565,10 +562,7 @@
                     <div class="modal-body" id="blast-sequence">
 MARRYGSSPRPIGDRNPTIRITQGTVGVPLGWPPIPSPRTLSSSGRPNHPRPSPRRRCRGRSRNDDPRRVTMIDVNALINAQPPKGNYFAPDVYLQGDNEFGLLENRSGARLIALPDTLIKGLFTAIDSELGIGAGVALTACGKTWGSAFYKRFADELQEYYGKPIQAMEMVEFLQTFKQCWKSHGYGLVDIDLKYYQNGFIVAEVVNSPFVACAPQGKCPMGFLEAGILTAFFSQLTGENLHCEQTTCESLGAEKNLFILGLKERLKPVSAWLTEGHDHATIMELLCRQQG                    </div>
                     <div class="modal-footer">
-                        <a href="download_files.php?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&type=blast"
-                            title="Download the list of UniProt IDs that are contained within the diagrams.">
-                                <button type="button" class="btn btn-default" id="save-blast-seq-btn">Save to File</button>
-                        </a>
+                        <button type="button" class="btn btn-default" id="save-blast-seq-btn">Save to File</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->
