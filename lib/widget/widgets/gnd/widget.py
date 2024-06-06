@@ -3,6 +3,8 @@ import sqlite3
 
 class GndParams:
 	def __init__(self, params):
+		# the P object
+		self.P = {}
 		# from the query string
 		self.db = params.get("gnn-id", params.get("direct-id", "")) + ".sqlite"
 		self.my_id = params.get("gnn-id", params.get("direct-id", ""))
@@ -41,6 +43,14 @@ class GndParams:
 		conn.close()
 		return result is not None
 	
+	def get_realtime_params(self):
+		self.P["id_key_query_string"] = "mode=rt"
+		self.P["gnn_name_text"] = "A"
+		self.P["window_title"] = ""
+		self.P["is_realtime_job"] = True
+		self.P["gnn_id"] = -1
+		self.P["gnn_key"] = ""
+		
 	# copied over exactly from efi-web
 	def get_ids_from_accessions(self):
 		ids = []
