@@ -1,3 +1,4 @@
+import re
 from widget.lib.widget_base import WidgetBase
 import sqlite3
 
@@ -17,7 +18,7 @@ class GndParams:
 
 		# from the database
 		self.gnn_window = 10
-		self.gnn_type = "Sequence BLAST"
+		self.gnn_type = ""
 
 		self.has_unmatched_ids = False
 		self.unmatched_ids = []
@@ -50,7 +51,8 @@ class GndParams:
 		self.P["is_realtime_job"] = True
 		self.P["gnn_id"] = -1
 		self.P["gnn_key"] = ""
-		
+		return True
+
 	# copied over exactly from efi-web
 	def get_ids_from_accessions(self):
 		ids = []
@@ -99,6 +101,8 @@ class GndParams:
 			self.gnn_type = "FASTA header ID lookup"
 		elif type != None and type != "" and type == "ID_LOOKUP":
 			self.gnn_type = "Sequence ID lookup"
+		elif type != None and type != "" and type == "gnn":
+			self.gnn_type = "GNN"
 		else:
 			# TODO: else what is the type??
 			self.is_direct_job = False

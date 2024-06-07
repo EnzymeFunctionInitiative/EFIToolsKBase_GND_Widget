@@ -29,7 +29,12 @@ class GND:
     cursor.close()
     conn.close()
     return data
-      
+  
+  def check_column_exists(self, column, table):
+    query = f"PRAGMA table_info({table})"
+    columns = [row[1] for row in self.fetch_data(query)]
+    return column in columns
+  
   def get_stats(self):
     stats = {}
     
@@ -152,6 +157,10 @@ class GND:
     }
     if result[17] != None:
       attributes["evalue"] = result[17]
+    if self.check_column_exists("uniref90_size", "attributes"):
+      attributes["uniref90_size"] = self.fetch_data(f"SELECT uniref90_size FROM attributes WHERE cluster_index = {idx}")[0][0]
+    if self.check_column_exists("uniref50_size", "attributes"):
+      attributes["uniref50_size"] = self.fetch_data(f"SELECT uniref50_size FROM attributes WHERE cluster_index = {idx}")[0][0]
     return attributes
   
   def get_neighbors(self, n, idx):
@@ -286,9 +295,11 @@ class Widget(WidgetBase):
     def render(self) -> str:
         if self.has_param('query'):
             my_gnd = GND(db=self.get_param('direct-id') + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
-            return my_gnd.generate_json()
+            json_data = my_gnd.generate_json()
+            return json_data
         elif self.has_param('range'):
             my_gnd = GND(db=self.get_param('direct-id') + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')))
-            return my_gnd.generate_json()
+            json_data = my_gnd.generate_json()
+            return json_data
         return super().render()
 

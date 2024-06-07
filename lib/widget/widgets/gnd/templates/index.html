@@ -480,7 +480,17 @@
                 setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 
                 alert("Unable to retrieve the selected diagrams: probably because too many were selected.");
-            } 
+            }
+
+            function downloadUnmatchedIds(unmatchedIds, downloadName) {
+                var content = unmatchedIds.join("\n");
+                var blob = new Blob([content], { type: "text/plain" });
+                var url = URL.createObjectURL(blob);
+                var link = document.createElement("a");
+                link.href = url;
+                link.download = downloadName + "_Unmatched_IDs.txt";
+                link.click();
+            }
         </script>
 
         <div id="start-info">
@@ -545,7 +555,7 @@
                     </div>
                     <div class="modal-body" id="unmatched-ids">{{ unmatched_id_modal_text }}</div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" id="save-unmatched-ids-btn">Save to File</button>
+                        <button type="button" class="btn btn-default" id="save-unmatched-ids-btn" onclick="downloadUnmatchedIds({{ unmatched_ids }}, {{ download_name }})">Save to File</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->
