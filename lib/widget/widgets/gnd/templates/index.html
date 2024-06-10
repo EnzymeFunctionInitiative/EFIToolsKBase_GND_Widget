@@ -45,19 +45,24 @@
     </head>
 
     <body>
-
+        {% from 'partials/macros.html' import render_paragraph %}
         <header class="header">
             <table style="width:100%;height:70px">
                 <tr>
                     <td style="width: 175px">
-                        <a href="index.php"><img
+                        <a href="https://efi.igb.illinois.edu/efi-gnt/index.php"><img
                             src="{{ widget_asset_url }}/img/efignt_logo55.png" width="157" height="55" alt="EFI GNT Logo" style="margin-left:10px;" /></a>
                     </td>
-                                        <td id="header-body-title" class="header-title">
-                        Genome Neighborhood Diagrams for {{ name }}                        <span id="cluster-uniref-id" class="display: none"><br></span>
+                    <td id="header-body-title" class="header-title">
+                        Genome Neighborhood Diagrams for {{ name }}<span id="cluster-uniref-id" class="display: none"><br></span>
                     </td>
                     <td id="header-job-info">
-                        <div>Job Type: {{ type }}</div>                        <div>Job ID: {{ id }}</div>                                                                    </td>
+                        <div>Job Type: {{ type }}</div>
+                        <div>Job ID: {{ id }}</div>
+                        <div>
+                            {{ render_paragraph(name) }}
+                        </div>
+                    </td>
                 </tr>
             </table>
         </header>
@@ -159,26 +164,11 @@
                             <i class="fas fa-window-maximize" aria-hidden="true"></i> <span class="sidebar-header">Genome Window</span>
                             <div>
                                 <select id="window-size" class="light zoom-btn">
-                                    <option value="1" >1</option>
-                                    <option value="2" >2</option>
-                                    <option value="3" >3</option>
-                                    <option value="4" >4</option>
-                                    <option value="5" >5</option>
-                                    <option value="6" >6</option>
-                                    <option value="7" >7</option>
-                                    <option value="8" >8</option>
-                                    <option value="9" >9</option>
-                                    <option value="10" selected>10</option>
-                                    <option value="11" >11</option>
-                                    <option value="12" >12</option>
-                                    <option value="13" >13</option>
-                                    <option value="14" >14</option>
-                                    <option value="15" >15</option>
-                                    <option value="16" >16</option>
-                                    <option value="17" >17</option>
-                                    <option value="18" >18</option>
-                                    <option value="19" >19</option>
-                                    <option value="20" >20</option>
+                                    {% for i in range(1, 21) %}
+                                        <option value="{{ i }}" {% if window == i %}selected{% endif %}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                                </select>
                                 </select> genes
                                 <button type="button" class="btn btn-default tool-button auto zoom-btn" id="refresh-window">
                                     <i class="fas fa-refresh" aria-hidden="true"></i> Apply
@@ -347,7 +337,7 @@
                 $("#filter-cb-toggle").prop("checked", false);
                 $("#filter-anno-toggle").prop("checked", false);
                 //$("#advanced-search-use-uniref").prop("checked", false);
-                $("#window-size").val(10);
+                // $("#window-size").val(10);
                 if (checkBrowserSupport()) {
 
                     var svgCanvasId = "#arrow-canvas";
@@ -528,14 +518,7 @@
                         <h4 class="modal-title">UniProt IDs Identified</h4>
                     </div>
                     <div class="modal-body" id="uniprot-ids">
-                        <table border="0">
-                            <thead>
-                                <th width="120px">UniProt ID</th>
-                                <th>Query ID</th>
-                            </thead>
-                            <tbody>
-<tr><td>A0A073CES2</td><td></td></tr><tr><td>A0A098TIX9</td><td></td></tr><tr><td>A0A0D6ADF6</td><td></td></tr><tr><td>A0A0D6ANF6</td><td></td></tr><tr><td>A0A0D8ZRH3</td><td></td></tr><tr><td>A0A0M1JT68</td><td></td></tr><tr><td>A0A0M2PS26</td><td></td></tr><tr><td>A0A0P4UUP7</td><td></td></tr><tr><td>A0A0S3U745</td><td></td></tr><tr><td>A0A140K8S4</td><td></td></tr><tr><td>A0A1C0VXS3</td><td></td></tr><tr><td>A0A1J1JL03</td><td></td></tr><tr><td>A0A1J1LGW4</td><td></td></tr><tr><td>A0A1J5GEK1</td><td></td></tr><tr><td>A0A1J5GTW7</td><td></td></tr><tr><td>A0A1T4ZET8</td><td></td></tr><tr><td>A0A1U7HBZ5</td><td></td></tr><tr><td>A0A1U7HWM4</td><td></td></tr><tr><td>A0A1U7J5X3</td><td></td></tr><tr><td>A0A1Z4JF86</td><td></td></tr><tr><td>A0A251WGE8</td><td></td></tr><tr><td>A0A2D2Q3Z2</td><td></td></tr><tr><td>A0A2G8PCB2</td><td></td></tr><tr><td>A0A2G8PCW0</td><td></td></tr><tr><td>A0A2K8WQY4</td><td></td></tr><tr><td>A0A2P8QTB4</td><td></td></tr><tr><td>A0A2P8W8Z1</td><td></td></tr><tr><td>A0A2P8WL99</td><td></td></tr><tr><td>A0A2S6V2N5</td><td></td></tr><tr><td>A0A2S6VI79</td><td></td></tr><tr><td>A0A2T1BXJ6</td><td></td></tr><tr><td>A0A2T1EGS7</td><td></td></tr><tr><td>A0A2T1F3V3</td><td></td></tr><tr><td>A0A2T1G1Y0</td><td></td></tr><tr><td>A0A2T2W6W2</td><td></td></tr><tr><td>A0A2W1JJ39</td><td></td></tr><tr><td>A0A2W4VV35</td><td></td></tr><tr><td>A0A2W4WG41</td><td></td></tr><tr><td>A0A2W6ZDB6</td><td></td></tr><tr><td>A0A2W6ZGF8</td><td></td></tr><tr><td>A0A2W7AW71</td><td></td></tr><tr><td>A0A2W7B7I6</td><td></td></tr><tr><td>A0A2W7CMR5</td><td></td></tr><tr><td>A0A2Z5WZW5</td><td></td></tr><tr><td>A0A349JIS4</td><td></td></tr><tr><td>A0A352J9P2</td><td></td></tr><tr><td>A0A357A518</td><td></td></tr><tr><td>A0A3B7MBN6</td><td></td></tr><tr><td>A0A3B8Y8X0</td><td></td></tr><tr><td>A0A3C1M1K3</td><td></td></tr><tr><td>A0A3C1PDT6</td><td></td></tr><tr><td>A0A3M2GYB3</td><td></td></tr><tr><td>A0A401IM19</td><td></td></tr><tr><td>A0A433VLD2</td><td></td></tr><tr><td>A0A4P5ZJW4</td><td></td></tr><tr><td>A0A4Q7E807</td><td></td></tr><tr><td>A0A5C2M7N1</td><td></td></tr><tr><td>A0A5Q4EEG8</td><td></td></tr><tr><td>A0A651E6M7</td><td></td></tr><tr><td>A0A6C2DU68</td><td></td></tr><tr><td>A0A6C2YQ53</td><td></td></tr><tr><td>A0A6G3YV31</td><td></td></tr><tr><td>A0A6H1U4E2</td><td></td></tr><tr><td>A0A6H2NLH0</td><td></td></tr><tr><td>A0A6I5P9I7</td><td></td></tr><tr><td>A0A6I5R0B8</td><td></td></tr><tr><td>A0A6J4LIA2</td><td></td></tr><tr><td>A0A6J7ZJQ9</td><td></td></tr><tr><td>A0A6M0F734</td><td></td></tr><tr><td>A0A6M0S6D6</td><td></td></tr><tr><td>A0A6N2K0C9</td><td></td></tr><tr><td>A0A6N8FW71</td><td></td></tr><tr><td>A0A6P0T5N8</td><td></td></tr><tr><td>A0A6P1VH98</td><td></td></tr><tr><td>A0A6P2AI99</td><td></td></tr><tr><td>A0A7C3KDD1</td><td></td></tr><tr><td>A0A7C3VK42</td><td></td></tr><tr><td>A0A7C9PUX9</td><td></td></tr><tr><td>A0A7G7VXC8</td><td></td></tr><tr><td>A0A7T5E6E8</td><td></td></tr><tr><td>A0A7Y3TPZ6</td><td></td></tr><tr><td>A0A7Z9DXU1</td><td></td></tr><tr><td>A0A7Z9DYP4</td><td></td></tr><tr><td>A0A832M1W0</td><td></td></tr><tr><td>A0A846E8Y7</td><td></td></tr><tr><td>A0A8J6R496</td><td></td></tr><tr><td>A0A8J6SUT8</td><td></td></tr><tr><td>A0A8J6UZV5</td><td></td></tr><tr><td>A0A8J6VWP8</td><td></td></tr><tr><td>A0A8J6WWA7</td><td></td></tr><tr><td>A0A8J7BEV7</td><td></td></tr><tr><td>A0A8J7BFB3</td><td></td></tr><tr><td>A0A8J7E329</td><td></td></tr><tr><td>A0A8J7ERL5</td><td></td></tr><tr><td>A0A8J7ESA0</td><td></td></tr><tr><td>A0A8J7G740</td><td></td></tr><tr><td>A0A8J7Z897</td><td></td></tr><tr><td>A0A8K2A131</td><td></td></tr><tr><td>A0A915V6M8</td><td></td></tr><tr><td>A0A916PW25</td><td></td></tr><tr><td>A0A924CS62</td><td></td></tr><tr><td>A0A925RJE9</td><td></td></tr><tr><td>A0A926PLL8</td><td></td></tr><tr><td>A0A926PZK6</td><td></td></tr><tr><td>A0A926TGM9</td><td></td></tr><tr><td>A0A926U9J8</td><td></td></tr><tr><td>A0A926UT55</td><td></td></tr><tr><td>A0A926V914</td><td></td></tr><tr><td>A0A926YL79</td><td></td></tr><tr><td>A0A926ZY73</td><td></td></tr><tr><td>A0A927EH67</td><td></td></tr><tr><td>A0A928V7M7</td><td></td></tr><tr><td>A0A928VI10</td><td></td></tr><tr><td>A0A928VLM6</td><td></td></tr><tr><td>A0A928ZVB4</td><td></td></tr><tr><td>A0A929B4N6</td><td></td></tr><tr><td>A0A929FE92</td><td></td></tr><tr><td>A0A930TL00</td><td></td></tr><tr><td>A0A930U5B5</td><td></td></tr><tr><td>A0A937S401</td><td></td></tr><tr><td>A0A941GV38</td><td></td></tr><tr><td>A0A947DGB3</td><td></td></tr><tr><td>A0A951U8J9</td><td></td></tr><tr><td>A0A964CJW2</td><td></td></tr><tr><td>A0A964D3X5</td><td></td></tr><tr><td>A0A964G567</td><td></td></tr><tr><td>A0A966CBT8</td><td></td></tr><tr><td>A0A968HTK3</td><td></td></tr><tr><td>A0A968I0T8</td><td></td></tr><tr><td>A0A968M2Z2</td><td></td></tr><tr><td>A0A968SWM0</td><td></td></tr><tr><td>A0A968U1E8</td><td></td></tr><tr><td>A0A968Y8G4</td><td></td></tr><tr><td>A0A968YSU7</td><td></td></tr><tr><td>A0A968Z858</td><td></td></tr><tr><td>A0A969D112</td><td></td></tr><tr><td>A0A969G4N8</td><td></td></tr><tr><td>A0A969GW69</td><td></td></tr><tr><td>A0A969JIB5</td><td></td></tr><tr><td>A0A969K3L9</td><td></td></tr><tr><td>A0A969NSK2</td><td></td></tr><tr><td>A0A969PU42</td><td></td></tr><tr><td>A0A969R408</td><td></td></tr><tr><td>A0A969SZV2</td><td></td></tr><tr><td>A0A969TKH9</td><td></td></tr><tr><td>A0A969TSQ7</td><td></td></tr><tr><td>A0A970ASR2</td><td></td></tr><tr><td>A0A976BRB0</td><td></td></tr><tr><td>A0A976GU26</td><td></td></tr><tr><td>A0A978RZJ3</td><td></td></tr><tr><td>A0A978SBV6</td><td></td></tr><tr><td>A0A978SST7</td><td></td></tr><tr><td>A0A978T879</td><td></td></tr><tr><td>A0A978TWM0</td><td></td></tr><tr><td>A0A9D9KJR1</td><td></td></tr><tr><td>A0A9D9KPI4</td><td></td></tr><tr><td>A0A9E5RE55</td><td></td></tr><tr><td>A0A9E5RSY8</td><td></td></tr><tr><td>A0A9E9C367</td><td></td></tr><tr><td>A0A9P1KCW4</td><td></td></tr><tr><td>A0A9W3ZLJ6</td><td></td></tr><tr><td>A0A9W4CRD8</td><td></td></tr><tr><td>A0A9X4M877</td><td></td></tr><tr><td>A0A9X4MEA6</td><td></td></tr><tr><td>A0A9X5E168</td><td></td></tr><tr><td>A3ISU6</td><td></td></tr><tr><td>B0C0G3</td><td></td></tr><tr><td>B0CFZ7</td><td></td></tr><tr><td>B1WNN0</td><td></td></tr><tr><td>B7K0Z0</td><td></td></tr><tr><td>B8HN29</td><td></td></tr><tr><td>D8FTM2</td><td></td></tr><tr><td>E0U644</td><td></td></tr><tr><td>G5J3G3</td><td></td></tr><tr><td>K8GM00</td><td></td></tr><tr><td>K9RUN1</td><td></td></tr><tr><td>K9SB42</td><td></td></tr><tr><td>K9SG75</td><td></td></tr><tr><td>K9SPH1</td><td></td></tr><tr><td>K9TPD3</td><td></td></tr><tr><td>K9TSV1</td><td></td></tr><tr><td>K9X9P6</td><td></td></tr><tr><td>K9XX75</td><td></td></tr><tr><td>K9YJQ9</td><td></td></tr><tr><td>K9Z4M0</td><td></td></tr><tr><td>L8LRW3</td><td></td></tr><tr><td>L8LTQ2</td><td></td></tr><tr><td>L8MZZ7</td><td></td></tr><tr><td>L8N0F0</td><td></td></tr><tr><td>P74446</td><td></td></tr><tr><td>Q2JKJ6</td><td></td></tr><tr><td>Q2JNT8</td><td></td></tr><tr><td>Q2JW34</td><td></td></tr><tr><td>Q2JWW1</td><td></td></tr><tr><td>Q4C557</td><td></td></tr><tr><td>Q8DGL5</td><td></td></tr><tr><td>T2IQ24</td><td></td></tr><tr><td>T2JT07</td><td></td></tr><tr><td>U9VZE8</td><td></td></tr><tr><td>V5V691</td><td></td></tr>                            </tbody>
-                        </table>
+                        {{ uniprot_ids_modal_text }}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" id="save-uniprot-ids-btn">Save to File</button>

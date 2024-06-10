@@ -113,7 +113,13 @@ class GndParams:
 			for val in column:
 				self.unmatched_ids.append(val[0])
 				self.unmatched_id_modal_text += "<div>" + val[0] + "</div>"
-		
+
+		self.uniprot_ids = self.get_uniprot_ids()
+		content = "UniProt ID\tQuery ID\n"
+		for upId, otherId in self.uniprot_ids.items():
+			content += f"{upId}\t{otherId}\n"
+		self.uniprot_ids_modal_text = content
+
 		res = {
 			"window": self.gnn_window,
 			"type": self.gnn_type,
@@ -125,7 +131,10 @@ class GndParams:
 			"has_unmatched_ids": self.has_unmatched_ids,
 			"unmatched_ids": self.unmatched_ids,
 			"unmatched_id_modal_text": self.unmatched_id_modal_text,
+			"uniprot_ids": self.uniprot_ids,
+			"uniprot_ids_modal_text": self.uniprot_ids_modal_text
 		}
+		print(res)
 		return res
 
 # class GNDFiles:
