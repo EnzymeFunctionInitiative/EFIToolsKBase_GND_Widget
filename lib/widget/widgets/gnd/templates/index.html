@@ -45,7 +45,7 @@
     </head>
 
     <body>
-        {% from 'partials/macros.html' import render_paragraph %}
+        {% from 'partials/macros.html' import render_blast_sequence_modal %}
         <header class="header">
             <table style="width:100%;height:70px">
                 <tr>
@@ -54,14 +54,11 @@
                             src="{{ widget_asset_url }}/img/efignt_logo55.png" width="157" height="55" alt="EFI GNT Logo" style="margin-left:10px;" /></a>
                     </td>
                     <td id="header-body-title" class="header-title">
-                        Genome Neighborhood Diagrams for {{ name }}<span id="cluster-uniref-id" class="display: none"><br></span>
+                        Genome Neighborhood Diagrams for {{ gnn_name }}<span id="cluster-uniref-id" class="display: none"><br></span>
                     </td>
                     <td id="header-job-info">
-                        <div>Job Type: {{ type }}</div>
-                        <div>Job ID: {{ id }}</div>
-                        <div>
-                            {{ render_paragraph(name) }}
-                        </div>
+                        <div>Job Type: {{ gnn_type }}</div>
+                        <div>Job ID: {{ gnn_id }}</div>
                     </td>
                 </tr>
             </table>
@@ -165,7 +162,7 @@
                             <div>
                                 <select id="window-size" class="light zoom-btn">
                                     {% for i in range(1, 21) %}
-                                        <option value="{{ i }}" {% if window == i %}selected{% endif %}>{{ i }}</option>
+                                        <option value="{{ i }}" {% if nb_size == i %}selected{% endif %}>{{ i }}</option>
                                     {% endfor %}
                                 </select>
                                 </select>
@@ -221,7 +218,7 @@
                                 </a>
                             </div>
 
-                            {% if type == "Sequence BLAST" %}
+                            {% if gnn_type == "Sequence BLAST" %}
                                 <div>
                                     <button type="button" class="btn btn-default tool-button" id="show-uniprot-ids">
                                         <i class="far fa-thumbs-up" aria-hidden="true"></i> UniProt IDs                                        
@@ -337,7 +334,7 @@
                 $("#filter-cb-toggle").prop("checked", false);
                 $("#filter-anno-toggle").prop("checked", false);
                 //$("#advanced-search-use-uniref").prop("checked", false);
-                // $("#window-size").val(10);
+                $("#window-size").val({{ nb_size }});
                 if (checkBrowserSupport()) {
 
                     var svgCanvasId = "#arrow-canvas";
@@ -360,8 +357,8 @@
                     // Initialize constant vars
                     gndVars.setPageSize(200);
                     gndVars.setUrlPath("http://localhost:5100/widgets/data");
-                    gndVars.setAuthString("direct-id={{ id }}&key={{ key }}");
-                    gndVars.setWindow("{{ window }}");
+                    gndVars.setAuthString("direct-id={{ gnn_id }}&key={{ gnn_key }}");
+                    gndVars.setWindow("{{ nb_size }}");
                     if (superfamilySupport)
                         gndVars.setSuperfamilySupport(true);
 
@@ -481,6 +478,15 @@
                 link.download = downloadName + "_Unmatched_IDs.txt";
                 link.click();
             }
+
+            function downloadBlastSeq(blastSeq, downloadName) {
+                var blob = new Blob([blastSeq], { type: "text/plain" });
+                var url = URL.createObjectURL(blob);
+                var link = document.createElement("a");
+                link.href = url;
+                link.download = downloadName + "_BLAST_Sequence.txt";
+                link.click();
+            }
         </script>
 
         <div id="start-info">
@@ -538,29 +544,31 @@
                     </div>
                     <div class="modal-body" id="unmatched-ids">{{ unmatched_id_modal_text }}</div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" id="save-unmatched-ids-btn" onclick="downloadUnmatchedIds({{ unmatched_ids }}, {{ download_name }})">Save to File</button>
+                        <button type="button" class="btn btn-default" id="save-unmatched-ids-btn" onclick="downloadUnmatchedIds({{ unmatched_ids }}, '{{ gnn_download_name }}')">Save to File</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div>
-
-        <div id="blast-sequence-modal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Sequence Used in BLAST</h4>
-                    </div>
-                    <div class="modal-body" id="blast-sequence">
-MARRYGSSPRPIGDRNPTIRITQGTVGVPLGWPPIPSPRTLSSSGRPNHPRPSPRRRCRGRSRNDDPRRVTMIDVNALINAQPPKGNYFAPDVYLQGDNEFGLLENRSGARLIALPDTLIKGLFTAIDSELGIGAGVALTACGKTWGSAFYKRFADELQEYYGKPIQAMEMVEFLQTFKQCWKSHGYGLVDIDLKYYQNGFIVAEVVNSPFVACAPQGKCPMGFLEAGILTAFFSQLTGENLHCEQTTCESLGAEKNLFILGLKERLKPVSAWLTEGHDHATIMELLCRQQG                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" id="save-blast-seq-btn">Save to File</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div>
+        {% if is_blast %}
+            {<div id="blast-sequence-modal" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Sequence Used in BLAST</h4>
+                        </div>
+                        <div class="modal-body" id="blast-sequence">
+                            {{ blast_seq }}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" id="save-blast-seq-btn" onclick="downloadBlastSeq('{{ blast_seq }}', '{{ gnn_download_name }}')">Save to File</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div>}
+        {% endif %}
 
         <div id="help-modal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -626,14 +634,16 @@ MARRYGSSPRPIGDRNPTIRITQGTVGVPLGWPPIPSPRTLSSSGRPNHPRPSPRRRCRGRSRNDDPRRVTMIDVNALIN
                         </p>
                         <p>
                         <div><b>Data Export</b></div>
-                                                It is possible to export a file that provides the data used to generate the diagrams.
-                        The data file format is SQLite, and it can be uploaded to the EFI-GNT
-                        tool and viewed again in the future via the <i>View Saved Diagrams</i>
-                        option.
-                        For advanced use, the file can also be opened with
-                        <a href="https://sqlitebrowser.org/" target="_blank">DB Browser for SQLite</a>
-                        to manually extract data.
-                                                </p>
+                        {% if supports_download == true and is_uploaded_diagram == false %}
+                            It is possible to export a file that provides the data used to generate the diagrams.
+                            The data file format is SQLite, and it can be uploaded to the EFI-GNT
+                            tool and viewed again in the future via the <i>View Saved Diagrams</i>
+                            option.
+                            For advanced use, the file can also be opened with
+                            <a href="https://sqlitebrowser.org/" target="_blank">DB Browser for SQLite</a>
+                            to manually extract data.
+                        {% endif %}
+                        </p>
                         <p>
                         The currently displayed diagrams can be exported to the Gene Graphics
                         format and displayed using the
