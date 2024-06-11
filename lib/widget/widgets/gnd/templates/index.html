@@ -45,7 +45,7 @@
     </head>
 
     <body>
-        {% from 'partials/macros.html' import render_blast_sequence_modal %}
+        <!-- {% from 'partials/macros.html' import render_blast_sequence_modal %} -->
         <header class="header">
             <table style="width:100%;height:70px">
                 <tr>
@@ -58,6 +58,9 @@
                     </td>
                     <td id="header-job-info">
                         <div>Job Type: {{ gnn_type }}</div>
+                        {% if cooccurrence != None %}
+                            <div>Co-occurrence: {{ cooccurrence }}</div>
+                        {% endif %}
                         <div>Job ID: {{ gnn_id }}</div>
                     </td>
                 </tr>
@@ -240,7 +243,7 @@
                                 </div>
                             {% endif %}
                             <div>
-                                <a href="diagram_tutorial.pdf">
+                                <a href="https://efi.igb.illinois.edu//efi-gnt/diagram_tutorial.pdf">
                                 <button type="button" class="btn btn-default tool-button" id="show-blast-sequence">
                                 <i class="fas fa-file-alt" aria-hidden="true"></i> Tutorial
                                 </button>
@@ -342,7 +345,7 @@
                     var interproFilterContainerId = "#filter-container-interpro";
                     var legendContainerId = "#active-filter-list";
                     var numDiagramsFilteredId = "#diagram-filter-count-container";
-                    var superfamilySupport = false;
+                    var superfamilySupport = {{ is_superfamily_job }};
                     var uniRefUiIds = {};
                     uniRefUiIds.uniref50Cb = "uniref50-cb";
                     uniRefUiIds.uniref50Btn = "uniref50-btn";
@@ -366,7 +369,7 @@
                     var gndRouter = new GndMessageRouter();
                     var gndHttp = new GndHttp(gndRouter);
                     var popupIds = new GndInfoPopupIds();
-                    var bigscape = new BigScape(30093, "52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617", "", "");
+                    var bigscape = new BigScape({{ gnn_id }}, "{{ gnn_key }}", "", "");
                     var uniRefSupport = new UniRef(false, "");
                     
                     var gndDb = new GndDb(gndColor);
@@ -402,8 +405,9 @@
                     $(".zoom-btn").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
                     $("#download-data").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
 
-
-                    $("#advanced-search-input-container").show();
+                    if ({{ is_superfamily_job }}) {
+                        $("#advanced-search-input-container").show();
+                    }
 
                     ui.initialDirectJobLoad();
                     $("#show-uniprot-ids").click(function(e) {
@@ -550,7 +554,7 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div>
-        {% if is_blast %}
+        {% if is_blast == "true" %}
             {<div id="blast-sequence-modal" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -634,7 +638,7 @@
                         </p>
                         <p>
                         <div><b>Data Export</b></div>
-                        {% if supports_download == true and is_uploaded_diagram == false %}
+                        {% if supports_download == "true" and is_uploaded_diagram == "false" %}
                             It is possible to export a file that provides the data used to generate the diagrams.
                             The data file format is SQLite, and it can be uploaded to the EFI-GNT
                             tool and viewed again in the future via the <i>View Saved Diagrams</i>

@@ -1,3 +1,4 @@
+import json
 from widget.lib.widget_base import WidgetBase
 import sqlite3
 
@@ -5,10 +6,14 @@ class GndParams:
 	def __init__(self, params):
 		# the P object
 		self.P = {}
+
+		# internal variables
+		self.id_param = [param for param in params if param.endswith("-id")][0]
+		self.db = params.get(self.id_param) + ".sqlite"
+		print("HEY: " + self.db)
+
 		# from the query string
-		self.db = params.get("gnn-id", params.get("direct-id", params.get("upload-id", ""))) + ".sqlite"
-		self.P["is_uploaded_diagram"] = "upload-id" in params
-		self.P["gnn_id"] = params.get("gnn-id", params.get("direct-id", ""))
+		self.P["gnn_id"] = params.get(self.id_param)
 		self.P["gnn_key"] = params.get("key", "")
 		self.P["gnn_name"] = "job #" + self.P["gnn_id"]
 		self.P["gnn_title"] = self.P["gnn_name"]
@@ -19,22 +24,36 @@ class GndParams:
 		# from the database
 		self.P["nb_size"] = 10
 		self.P["gnn_type"] = ""
-		self.P["supports_download"] = True
-		self.P["is_blast"] = False
+		self.P["supports_download"] = "true"
+		self.P["is_blast"] = "false"
+		self.P["is_interpro_enabled"] = "false"
+		self.P["is_bigscape_enabled"] = "false"
+
+		# job type
+		self.P["is_uploaded_diagram"] = "true" if "upload-id" in params else "false"
+		self.P["is_superfamily_job"] = "true" if "rs-id" in params else "false"
+		self.P["is_direct_job"] = "true" if "direct-id" in params and "type" in params else "false"
+		self.P["is_realtime_job"] = "false"
 
 		# unmatched ids
-		self.P["has_unmatched_ids"] = False
+		self.P["has_unmatched_ids"] = "false"
 		self.P["unmatched_ids"] = []
 		self.P["unmatched_id_modal_text"] = ""
 
 		# uniprot ids
-		# blast sequence
 
-		# things that have to be calculated
-		self.P["is_direct_job"] = True if "direct-id" in params and "type" in params else False
+		# blast sequence
+		self.P["blast_seq"] = ""
 
 		# not important
-		self.P["is_example"] = False
+		self.P["is_example"] = "false"
+		self.P["bigscape_type"] = ""
+		self.P["bigscape_btn_icon"] = ""
+		self.P["bigscape_status"] = ""
+		self.P["bigscape_btn_text"] = ""
+		self.P["bigscape_modal_close_text"] = ""
+		self.P["cooccurrence"] = ""
+		self.P["max_nb_size"] = 20
 
 	def fetch_data(self, query):
 		conn = sqlite3.connect(self.db)
@@ -104,7 +123,9 @@ class GndParams:
 		type = self.fetch_data("SELECT type FROM metadata")[0][0]
 		if type == "BLAST":
 			self.P["gnn_type"] = "Sequence BLAST"
-			self.P["is_blast"] = True
+			# this convention is not great but it is a workaround so we can use the resulting value as a boolean
+			# in both the Jinja2 and JavaScript
+			self.P["is_blast"] = "true"
 		elif type == "FASTA":
 			self.P["gnn_type"] = "FASTA header ID lookup"
 		elif type == "ID_LOOKUP":
@@ -112,7 +133,7 @@ class GndParams:
 		elif type == "gnn":
 			self.P["gnn_type"] = "GNN"
 		else:
-			self.P["is_direct_job"] = False
+			self.P["is_direct_job"] = "false"
 
 		self.P["has_unmatched_ids"] = self.check_table_exists("unmatched")
 		if self.P["has_unmatched_ids"]:
@@ -121,14 +142,18 @@ class GndParams:
 				self.P["unmatched_ids"].append(val[0])
 				self.P["unmatched_id_modal_text"] += "<div>" + val[0] + "</div>"
 
-		self.P["uniprot_ids"] = self.get_uniprot_ids()
-		content = "UniProt ID\tQuery ID\n"
-		for upId, otherId in self.P["uniprot_ids"].items():
-			content += f"{upId}\t{otherId}\n"
-		self.P["uniprot_ids_modal_text"] = content
+		if self.P["gnn_type"] != "GNN":
+			self.P["uniprot_ids"] = self.get_uniprot_ids()
+			content = "UniProt ID\tQuery ID\n"
+			for upId, otherId in self.P["uniprot_ids"].items():
+				content += f"{upId}\t{otherId}\n"
+			self.P["uniprot_ids_modal_text"] = content
 
 		self.P["blast_seq"] = self.fetch_data("SELECT sequence FROM metadata")[0][0]
-
+		self.P["cooccurrence"] = self.fetch_data("SELECT cooccurrence FROM metadata")[0][0]
+		
+		self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"
+		print(json.dumps(self.P, indent=2))
 		return self.P
 
 class Widget(WidgetBase):
