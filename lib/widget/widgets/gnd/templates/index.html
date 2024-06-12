@@ -59,7 +59,7 @@
                     <td id="header-job-info">
                         <div>Job Type: {{ gnn_type }}</div>
                         {% if cooccurrence != None %}
-                            <div>Co-occurrence: {{ cooccurrence }}</div>
+                            <div>Co-occurrence: {{ cooccurrence * 10 }}</div>
                         {% endif %}
                         <div>Job ID: {{ gnn_id }}</div>
                     </td>
@@ -491,6 +491,15 @@
                 link.download = downloadName + "_BLAST_Sequence.txt";
                 link.click();
             }
+
+            function downloadUniProtIds(uniProtIds, downloadName) {
+                var blob = new Blob([uniProtIds], { type: "text/plain" });
+                var url = URL.createObjectURL(blob);
+                var link = document.createElement("a");
+                link.href = url;
+                link.download = downloadName + "_UniProt_IDs.txt";
+                link.click();
+            }
         </script>
 
         <div id="start-info">
@@ -528,11 +537,20 @@
                         <h4 class="modal-title">UniProt IDs Identified</h4>
                     </div>
                     <div class="modal-body" id="uniprot-ids">
-                        {{ uniprot_ids_modal_text }}
+                        <table border="0">
+                            <thead>
+                                <th width="120px">UniProt ID</th>
+                                <th>Query ID</th>
+                            </thead>
+                            <tbody>
+                                {{ uniprot_ids_modal_text }}
+                            </tbody>
+                        </table>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" id="save-uniprot-ids-btn">Save to File</button>
-                            <!--                            onclick='saveDataFn("30093__UniProt_IDs.txt", "uniprot-ids")'>Save to File</button>-->
+                        {% set uniprot_ids_download_text_js = uniprot_ids_download_text | replace("\n", "\\n") %}
+                        <button type="button" class="btn btn-default" id="save-uniprot-ids-btn" onclick="downloadUniProtIds('{{ uniprot_ids_download_text_js }}', '{{ gnn_download_name }}')">Save to File</button>
+                                                    <!--                            onclick='saveDataFn("30093__UniProt_IDs.txt", "uniprot-ids")'>Save to File</button>-->
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->

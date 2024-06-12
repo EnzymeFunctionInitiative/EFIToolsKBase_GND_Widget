@@ -28,6 +28,7 @@ class GndParams:
 		self.P["is_blast"] = "false"
 		self.P["is_interpro_enabled"] = "false"
 		self.P["is_bigscape_enabled"] = "false"
+		self.P["cooccurrence"] = ""
 
 		# job type
 		self.P["is_uploaded_diagram"] = "true" if "upload-id" in params else "false"
@@ -52,7 +53,6 @@ class GndParams:
 		self.P["bigscape_status"] = ""
 		self.P["bigscape_btn_text"] = ""
 		self.P["bigscape_modal_close_text"] = ""
-		self.P["cooccurrence"] = ""
 		self.P["max_nb_size"] = 20
 
 	def fetch_data(self, query):
@@ -144,10 +144,18 @@ class GndParams:
 
 		if self.P["gnn_type"] != "GNN":
 			self.P["uniprot_ids"] = self.get_uniprot_ids()
-			content = "UniProt ID\tQuery ID\n"
+
+			
+			download_text = "UniProt ID\tQuery ID\n"
+			modal_text = ""
 			for upId, otherId in self.P["uniprot_ids"].items():
-				content += f"{upId}\t{otherId}\n"
-			self.P["uniprot_ids_modal_text"] = content
+				download_text += f"{upId}\t{otherId}\n"
+				if upId == otherId:
+					modal_text += f"<tr><td>{upId}</td><td></td></tr>"
+				else:
+					modal_text += f"<tr><td>{upId}</td><td>{otherId}</td></tr>"
+			self.P["uniprot_ids_download_text"] = download_text
+			self.P["uniprot_ids_modal_text"] = modal_text
 
 		self.P["blast_seq"] = self.fetch_data("SELECT sequence FROM metadata")[0][0]
 		self.P["cooccurrence"] = self.fetch_data("SELECT cooccurrence FROM metadata")[0][0]
