@@ -16,7 +16,7 @@ class GndParams:
 		self.P["gnn_id"] = params.get(self.id_param)
 		self.P["gnn_key"] = params.get("key", "")
 		self.P["gnn_name"] = "job #" + self.P["gnn_id"]
-		self.P["gnn_title"] = self.P["gnn_name"]
+		self.P["window_title"] = "for job #" + self.P["gnn_id"]
 		self.P["gnn_download_name"] = str(self.P["gnn_id"]) + "_"
 		self.P["uniref_version"] = params.get("id-type", "")
 		self.P["uniref_id"] = params.get("uniref-id", "")
@@ -24,16 +24,16 @@ class GndParams:
 		# from the database
 		self.P["nb_size"] = 10
 		self.P["gnn_type"] = ""
-		self.P["supports_download"] = "true"
+		self.P["supports_download"] = "true" if self.id_param == "direct-id" else "false"
 		self.P["is_blast"] = "false"
 		self.P["is_interpro_enabled"] = "false"
 		self.P["is_bigscape_enabled"] = "false"
-		self.P["cooccurrence"] = ""
+		self.P["cooccurrence"] = 20
 
 		# job type
 		self.P["is_uploaded_diagram"] = "true" if "upload-id" in params else "false"
 		self.P["is_superfamily_job"] = "true" if "rs-id" in params else "false"
-		self.P["is_direct_job"] = "true" if "direct-id" in params and "type" in params else "false"
+		self.P["is_direct_job"] = "true" if "direct-id" in params else "false"
 		self.P["is_realtime_job"] = "false"
 
 		# unmatched ids
@@ -71,13 +71,13 @@ class GndParams:
 		result = cursor.fetchone()
 		cursor.close()
 		conn.close()
-		return result is not None
+		return "true" if result is not None else "false"
 	
 	def get_realtime_params(self):
 		self.P["id_key_query_string"] = "mode=rt"
 		self.P["gnn_name_text"] = "A"
 		self.P["nb_size_title"] = ""
-		self.P["is_realtime_job"] = True
+		self.P["is_realtime_job"] = "true"
 		self.P["gnn_id"] = -1
 		self.P["gnn_key"] = ""
 		return True
@@ -112,10 +112,9 @@ class GndParams:
 	def retrieve_info(self):
 		name = self.fetch_data("SELECT name FROM metadata")[0][0]
 		if name != None and name != "":
-			self.P["gnn_name"] = "<i>" + name + "</i>"
-			self.P["gnn_title"] = name + " #(" + self.P["gnn_id"] + ")"
+			self.P["gnn_name"] = "<i>" + name + "</i>" if self.id_param != "gnn-id" else "GNN <i>" + name + "</i>"
 			self.P["gnn_download_name"] += name
-
+			self.P["window_title"] = "for GNN " + name + " (#" + self.P["gnn_id"] + ")" if self.id_param == "gnn-id" else "for " + name + " (#" + self.P["gnn_id"] + ")"
 		nb_size = self.fetch_data("SELECT neighborhood_size FROM metadata")[0][0]
 		if nb_size != None and nb_size != "":
 			self.P["nb_size"] = nb_size
@@ -136,7 +135,7 @@ class GndParams:
 			self.P["is_direct_job"] = "false"
 
 		self.P["has_unmatched_ids"] = self.check_table_exists("unmatched")
-		if self.P["has_unmatched_ids"]:
+		if self.P["has_unmatched_ids"] == "true":
 			column = self.fetch_data("SELECT id_list FROM unmatched")
 			for val in column:
 				self.P["unmatched_ids"].append(val[0])
@@ -158,7 +157,9 @@ class GndParams:
 			self.P["uniprot_ids_modal_text"] = modal_text
 
 		self.P["blast_seq"] = self.fetch_data("SELECT sequence FROM metadata")[0][0]
-		self.P["cooccurrence"] = self.fetch_data("SELECT cooccurrence FROM metadata")[0][0]
+		cooccurrence = self.fetch_data("SELECT cooccurrence FROM metadata")[0][0]
+		if cooccurrence != None:
+			self.P["cooccurrence"] = int(cooccurrence * 100)
 		
 		self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"
 		print(json.dumps(self.P, indent=2))

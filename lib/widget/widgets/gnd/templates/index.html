@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <!-- <title>Genome Neighborhood Diagrams for {{ title }}</title> -->
+        <title>(TEST) Genome Neighborhood Diagrams {{ window_title }}</title>
 
         <!-- Bootstrap core CSS -->
         <link href="{{ widget_asset_url }}/css/bootstrap.min.css" rel="stylesheet">
@@ -57,11 +57,14 @@
                         Genome Neighborhood Diagrams for {{ gnn_name }}<span id="cluster-uniref-id" class="display: none"><br></span>
                     </td>
                     <td id="header-job-info">
-                        <div>Job Type: {{ gnn_type }}</div>
-                        {% if cooccurrence != None %}
-                            <div>Co-occurrence: {{ cooccurrence * 10 }}</div>
+                        {% if is_direct_job == "true" %}
+                            <div>Job Type: {{ gnn_type }}</div>
+                            <div>Job ID: {{ gnn_id }}</div>
+                        {% else %}
+                            <div>Job ID: {{ gnn_id }}</div>
+                            <div>Co-occurrence: {% if cooccurrence != None %} {{ cooccurrence }} {% endif %}</div>
+                            <div>Neighborhood size: {% if nb_size != None %} {{ nb_size|int }} {% endif %}</div>
                         {% endif %}
-                        <div>Job ID: {{ gnn_id }}</div>
                     </td>
                 </tr>
             </table>
@@ -101,13 +104,26 @@
     </div> <!-- enduniref -->
 
     <div id="advanced-search-input-container" style="display:none">
-        <div style="font-size:0.9em">Input specific UniProt IDs to display only those diagrams.</div>
+        <div style="font-size:0.9em">
+            {% if is_direct_job == "true" or is_realtime_job == "true" %}
+                Input specific UniProt IDs to display only those diagrams.
+            {% else %}
+                Input multiple clusters and/or individual UniProt IDs.
+            {% endif %}
+        </div>
         <textarea id="advanced-search-input"></textarea>
         <div>
             <button type="button" class="btn btn-light" id="advanced-search-cluster-button">Query</button>
-            <button type="button" class="btn btn-light" id="advanced-search-reset-button">Reset View</button>
+            <button type="button" class="btn btn-light" id="advanced-search-reset-button">
+                {% if is_direct_job == "true" and is_realtime_job == "false" %}
+                    Reset View
+                {% else %}
+                    Clear
+                {% endif %}
+            </button>
         </div>
     </div>
+    
 </div>
 
                     </li>
@@ -164,11 +180,9 @@
                             <i class="fas fa-window-maximize" aria-hidden="true"></i> <span class="sidebar-header">Genome Window</span>
                             <div>
                                 <select id="window-size" class="light zoom-btn">
-                                    {% for i in range(1, 21) %}
+                                    {% for i in range(1, max_nb_size + 1) %}
                                         <option value="{{ i }}" {% if nb_size == i %}selected{% endif %}>{{ i }}</option>
                                     {% endfor %}
-                                </select>
-                                </select>
                                 </select> genes
                                 <button type="button" class="btn btn-default tool-button auto zoom-btn" id="refresh-window">
                                     <i class="fas fa-refresh" aria-hidden="true"></i> Apply
@@ -201,6 +215,12 @@
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li><a href="#" id="export-gene-graphics-button"><i class="far fa-image" aria-hidden="true"></i> Export to Gene Graphics</a></li>
+                                    {% if is_example == "false" and supports_download == "true" and is_uploaded_diagram == "false" %}
+                                        <li><a id="download-data" href="download_files.php?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&type=data-file"
+                                            title="Download the data to upload it for future analysis using this tool.">
+                                            <i class="fas fa-download" aria-hidden="true"></i> Download Data as SQLite
+                                        </a></li>
+                                    {% endif %}
                                     <li><a id="download-data" href="download_files.php?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&type=data-file"
                                         title="Download the data to upload it for future analysis using this tool.">
                                                 <i class="fas fa-download" aria-hidden="true"></i> Download Data as SQLite
@@ -214,34 +234,34 @@
                                 </button>
                             </div>
                             <div>
-                                <a href="view_diagrams.php?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617" target="_blank">
+                                <a href="" target="_blank">
                                     <button type="button" class="btn btn-default tool-button">
                                         <i class="fas fa-window-restore" aria-hidden="true"></i> New Window
                                     </button>
                                 </a>
                             </div>
-
-                            {% if gnn_type == "Sequence BLAST" %}
+                            {% if is_direct_job == "true" %}
                                 <div>
                                     <button type="button" class="btn btn-default tool-button" id="show-uniprot-ids">
-                                        <i class="far fa-thumbs-up" aria-hidden="true"></i> UniProt IDs                                        
+                                        <i class="far fa-thumbs-up" aria-hidden="true"></i> {% if is_blast == "false" %}Recognized {% endif %}UniProt IDs                                    
                                     </button>
                                 </div>
+                            {% endif %}
+                            {% if has_unmatched_ids == "true" %}
                                 <div>
-                                    <button type="button" class="btn btn-default tool-button" id="show-blast-sequence">
-                                    <i class="fas fa-file-alt" aria-hidden="true"></i> Input Sequence
-                                    </button>
-                                </div>
-                            {% else %}
-                                <div>
-                                    <button type="button" class="btn btn-default tool-button" id="show-uniprot-ids">
-                                        <i class="far fa-thumbs-up" aria-hidden="true"></i> Recognized UniProt IDs                                    
-                                    </button>
                                     <button type="button" class="btn btn-default tool-button" id="show-unmatched-ids">
                                         <i class="fas fa-thumbs-down" aria-hidden="true"></i> Unmatched IDs
                                     </button>
                                 </div>
                             {% endif %}
+                            {% if is_blast == "true" %}
+                                <div>
+                                    <button type="button" class="btn btn-default tool-button" id="show-blast-sequence">
+                                    <i class="fas fa-file-alt" aria-hidden="true"></i> Input Sequence
+                                    </button>
+                                </div>
+                            {% endif %}
+
                             <div>
                                 <a href="https://efi.igb.illinois.edu//efi-gnt/diagram_tutorial.pdf">
                                 <button type="button" class="btn btn-default tool-button" id="show-blast-sequence">
@@ -361,7 +381,7 @@
                     gndVars.setPageSize(200);
                     gndVars.setUrlPath("http://localhost:5100/widgets/data");
                     gndVars.setAuthString("direct-id={{ gnn_id }}&key={{ gnn_key }}");
-                    gndVars.setWindow("{{ nb_size }}");
+                    gndVars.setWindow({{ nb_size }});
                     if (superfamilySupport)
                         gndVars.setSuperfamilySupport(true);
 
@@ -404,8 +424,8 @@
 
                     $(".zoom-btn").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
                     $("#download-data").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
-
-                    if ({{ is_superfamily_job }}) {
+                    
+                    if (!{{ is_superfamily_job }}) {
                         $("#advanced-search-input-container").show();
                     }
 
@@ -413,7 +433,9 @@
                     $("#show-uniprot-ids").click(function(e) {
                         $("#uniprot-ids-modal").modal("show");
                     });
-                    $("#show-blast-sequence").click(function(e) { $("#blast-sequence-modal").modal("show"); });
+                    if ({{ is_blast }}) {
+                        $("#show-blast-sequence").click(function(e) { $("#blast-sequence-modal").modal("show"); });
+                    }
                     
                 } else {
                     //TODO: nicer message
