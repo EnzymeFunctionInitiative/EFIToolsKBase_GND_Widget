@@ -29,7 +29,7 @@ A widget registry entry for a Javascript widget looks like this:
 Where:
 
 - `name` is the url component that will correspond to the widget. In a url it is used like
-  `https://ci.kbase.us/dynserv/895d41678a4b59e1d4c639e619b10bd27b7b0fe3.usernameService/widgets/minimal_example_js`
+  `https://appdev.kbase.us/dynserv/895d41678a4b59e1d4c639e619b10bd27b7b0fe3.usernameService/widgets/minimal_example_js`
 - `type` is always `static` for a javascript widget
 - `minimal_example` is the path within the `widget/widgets` directory in which the widget is implemented. This property is optional, as it defaults to the `name`. In fact, best practice is to have the `name` be the same as the `path`.
 - `title` is optional, and defaults to the `name`. The title is only used in contexts in which the widget must be communicated to a human, such as in error messages, log entries. Arguably, a nice `name` is just as good as a title, so it is recommended to just create a fully spelled-out name which can serve as a "good enough" title.

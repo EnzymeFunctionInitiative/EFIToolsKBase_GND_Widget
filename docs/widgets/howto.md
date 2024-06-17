@@ -12,7 +12,7 @@ Start the service container with the "bash" command, which puts it into the bash
 
 ```shell
 chmod a+x scripts/entrypoint.sh
-export KBASE_ENDPOINT=https://ci.kbase.us/services/ 
+export KBASE_ENDPOINT=https://appdev.kbase.us/services/ 
 docker compose run --service-ports eapearsonservicewidgetdemo bash
 ```
 

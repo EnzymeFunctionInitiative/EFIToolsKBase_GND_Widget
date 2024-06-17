@@ -63,7 +63,7 @@ A widget registry entry looks like this:
 Where:
 
 - `name` is the url component that will correspond to the widget. In a url it is used like
-  `https://ci.kbase.us/dynserv/895d41678a4b59e1d4c639e619b10bd27b7b0fe3.usernameService/widgets/minimal_example_py`
+  `https://appdev.kbase.us/dynserv/895d41678a4b59e1d4c639e619b10bd27b7b0fe3.usernameService/widgets/minimal_example_py`
 
 - `type` is always `python` for a python widget
 

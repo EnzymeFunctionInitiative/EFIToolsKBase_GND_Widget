@@ -293,12 +293,13 @@ class Widget(WidgetBase):
         }
     
     def render(self) -> str:
+        id_query = "gnn-id" if self.has_param("gnn-id") else "direct-id"
         if self.has_param('query'):
-            my_gnd = GND(db=self.get_param('direct-id') + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
+            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
             json_data = my_gnd.generate_json()
             return json_data
         elif self.has_param('range'):
-            my_gnd = GND(db=self.get_param('direct-id') + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')))
+            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')))
             json_data = my_gnd.generate_json()
             return json_data
         return super().render()

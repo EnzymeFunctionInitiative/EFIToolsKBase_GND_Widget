@@ -148,7 +148,7 @@ const {ref, token, workspaceURL, uiOrigin} = (() => {
         if (window.location.hostname.endsWith('kbase.us')) {
             return window.location.origin;
         } else {
-            return 'https://ci.kbase.us';
+            return 'https://appdev.kbase.us';
         }
     })();
 
@@ -162,7 +162,7 @@ const {ref, token, workspaceURL, uiOrigin} = (() => {
                 return `${window.location.origin}/services/`;
             }
         } else {
-            return 'https://ci.kbase.us/services/';
+            return 'https://appdev.kbase.us/services/';
         }
     })();
 

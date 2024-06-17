@@ -18,8 +18,6 @@
         <!-- Custom styles for this template -->
         <link href="{{ widget_asset_url }}/css/diagrams.css?v=20" rel="stylesheet">
         <link href="{{ widget_asset_url }}/css/alert.css" rel="stylesheet">
-
-        <link rel="icon" type="image/x-icon" href="favicon.ico">
 <!--
         <script src="js/app.js" type="application/javascript"></script>
         <script src="js/arrows.js" type="application/javascript"></script>
@@ -380,7 +378,7 @@
                     // Initialize constant vars
                     gndVars.setPageSize(200);
                     gndVars.setUrlPath("http://localhost:5100/widgets/data");
-                    gndVars.setAuthString("direct-id={{ gnn_id }}&key={{ gnn_key }}");
+                    gndVars.setAuthString("{{ id_key_query_string }}");
                     gndVars.setWindow({{ nb_size }});
                     if (superfamilySupport)
                         gndVars.setSuperfamilySupport(true);
@@ -420,7 +418,11 @@
                     ui.registerProgressBar("#progress-bar");
                     ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info", "#advanced-search-panel");
                     ui.registerUniRefControl("#advanced-search-use-uniref-container", "display-id-type", uniRefUiIds);
-                    ui.registerSearchResetToInitialBtn("#advanced-search-reset-button", "#advanced-search-input");
+                    if ({{is_direct_job}} || {{is_realtime_job}}) {
+                        ui.registerSearchResetToInitialBtn("#advanced-search-reset-button", "#advanced-search-input");
+                    } else {
+                        ui.registerSearchClearBtn("#advanced-search-reset-button", "#advanced-search-input");
+                    }
 
                     $(".zoom-btn").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
                     $("#download-data").tooltip({delay: {show: 50}, placement: 'top', trigger: 'hover'});
@@ -428,11 +430,15 @@
                     if (!{{ is_superfamily_job }}) {
                         $("#advanced-search-input-container").show();
                     }
-
-                    ui.initialDirectJobLoad();
-                    $("#show-uniprot-ids").click(function(e) {
-                        $("#uniprot-ids-modal").modal("show");
-                    });
+                    if (!{{ is_direct_job }}) {
+                        $("#start-info").show();
+                    } else {
+                        ui.initialDirectJobLoad();
+                        $("#show-uniprot-ids").click(function(e) {
+                            $("#uniprot-ids-modal").modal("show");
+                        });
+                    }
+                    
                     if ({{ is_blast }}) {
                         $("#show-blast-sequence").click(function(e) { $("#blast-sequence-modal").modal("show"); });
                     }
@@ -442,9 +448,11 @@
                     alert("Your browser is not supported.");
                 }
                 
-                $("#show-unmatched-ids").click(function(e) {
+                if ({{ has_unmatched_ids }}) {
+                    $("#show-unmatched-ids").click(function(e) {
                         $("#unmatched-ids-modal").modal("show");
                     });
+                }
                 
                 $("#help-modal-button").click(function(e) {
                     $("#help-modal").modal("show");
@@ -462,18 +470,16 @@
                     var data = filterUi.getLegendSvg();//TODO
                     var legendSvgMarkup = escape(data[1]);
                     
-                    var dlLink = document.createElement("a");
-                    dlLink.href = "data:image/svg+xml;charset=utf-8," + svg;
-                    dlLink.download = "{{download_name}}.svg";
-                    dlLink.style.display = "none";
-                    document.body.appendChild(dlLink);
-                    dlLink.click();
-                    document.body.removeChild(dlLink);
+                    var dlForm = $("<form></form>");
+                    dlForm.attr("method", "POST");
+                    dlForm.attr("action", "download_diagram_image.php");
+                    dlForm.append('<input type="hidden" name="type" value="svg">');
+                    // dlForm.append('<input type="hidden" name="name" value="<?php echo str_replace("'", "\\'", {{gnn_name}}); ?>">');
+                    dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
+                    dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
+                    $("#download-forms").append(dlForm);
+                    dlForm.submit();
                 });
-
-                saveDataFn = function(data) {
-                    console.log(data)
-                };
 
                 $("#export-gene-graphics-button").click(function(e) {
                     var url = control.getGetUrl(0, control.getMaxViewIndex());
@@ -551,67 +557,69 @@
             <!--    <div id="info-popup-num">Gene Index: <span class="popup-pfam"></span></div>-->
         </div>
 
-        <div id="uniprot-ids-modal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">UniProt IDs Identified</h4>
-                    </div>
-                    <div class="modal-body" id="uniprot-ids">
-                        <table border="0">
-                            <thead>
-                                <th width="120px">UniProt ID</th>
-                                <th>Query ID</th>
-                            </thead>
-                            <tbody>
-                                {{ uniprot_ids_modal_text }}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        {% set uniprot_ids_download_text_js = uniprot_ids_download_text | replace("\n", "\\n") %}
-                        <button type="button" class="btn btn-default" id="save-uniprot-ids-btn" onclick="downloadUniProtIds('{{ uniprot_ids_download_text_js }}', '{{ gnn_download_name }}')">Save to File</button>
-                                                    <!--                            onclick='saveDataFn("30093__UniProt_IDs.txt", "uniprot-ids")'>Save to File</button>-->
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div>
-
-        <div id="unmatched-ids-modal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">IDs Detected Without UniProt Match</h4>
-                    </div>
-                    <div class="modal-body" id="unmatched-ids">{{ unmatched_id_modal_text }}</div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" id="save-unmatched-ids-btn" onclick="downloadUnmatchedIds({{ unmatched_ids }}, '{{ gnn_download_name }}')">Save to File</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div>
-        {% if is_blast == "true" %}
-            {<div id="blast-sequence-modal" class="modal fade" tabindex="-1" role="dialog">
+        {% if is_direct_job == "true" %}
+            <div id="uniprot-ids-modal" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Sequence Used in BLAST</h4>
+                            <h4 class="modal-title">UniProt IDs Identified</h4>
                         </div>
-                        <div class="modal-body" id="blast-sequence">
-                            {{ blast_seq }}
+                        <div class="modal-body" id="uniprot-ids">
+                            <table border="0">
+                                <thead>
+                                    <th width="120px">UniProt ID</th>
+                                    <th>Query ID</th>
+                                </thead>
+                                <tbody>
+                                    {{ uniprot_ids_modal_text }}
+                                </tbody>
+                            </table>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" id="save-blast-seq-btn" onclick="downloadBlastSeq('{{ blast_seq }}', '{{ gnn_download_name }}')">Save to File</button>
+                            {% set uniprot_ids_download_text_js = uniprot_ids_download_text | replace("\n", "\\n") %}
+                            <button type="button" class="btn btn-default" id="save-uniprot-ids-btn" onclick="downloadUniProtIds('{{ uniprot_ids_download_text_js }}', '{{ gnn_download_name }}')">Save to File</button>
+                                                        <!--                            onclick='saveDataFn("30093__UniProt_IDs.txt", "uniprot-ids")'>Save to File</button>-->
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
-            </div>}
+            </div>
+
+            <div id="unmatched-ids-modal" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">IDs Detected Without UniProt Match</h4>
+                        </div>
+                        <div class="modal-body" id="unmatched-ids">{{ unmatched_id_modal_text }}</div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" id="save-unmatched-ids-btn" onclick="downloadUnmatchedIds({{ unmatched_ids }}, '{{ gnn_download_name }}')">Save to File</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div>
+            {% if is_blast == "true" %}
+                {<div id="blast-sequence-modal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Sequence Used in BLAST</h4>
+                            </div>
+                            <div class="modal-body" id="blast-sequence">
+                                {{ blast_seq }}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" id="save-blast-seq-btn" onclick="downloadBlastSeq('{{ blast_seq }}', '{{ gnn_download_name }}')">Save to File</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal-dialog -->
+                </div>}
+            {% endif %}
         {% endif %}
 
         <div id="help-modal" class="modal fade" tabindex="-1" role="dialog">

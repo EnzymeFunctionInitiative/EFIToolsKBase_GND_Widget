@@ -24,13 +24,13 @@ How does a dynamic service start up?
     development environment (e.g. `narrative-dev` has been used). One exception is
     `https://kbase.us`, which is the origin for production.
 
-    For example, `https://ci.kbase.us/services/` is the `KBASE_ENDPOINT` for the CI
+    For example, `https://appdev.kbase.us/services/` is the `KBASE_ENDPOINT` for the CI
     environment.
 
     > Note that `KBASE_ENDPOINT` always ends in a `/` - some code depends on this
     > practice, although kb-sdk actually assumes it does not, and thus creates
     > ill-formed urls (which work, but are incorrect, e.g.
-    > `https://ci.kbase.us/services//ws` - note the `//`)
+    > `https://appdev.kbase.us/services//ws` - note the `//`)
 
   - The `prepare_deploy_cfg.py` script generates the following service endpoints from
     the `KBASE_ENDPOINT`:
@@ -44,8 +44,8 @@ How does a dynamic service start up?
 
     A service url has the form `$KBASE_ENDPOINT/service_path`. E.g. the url for the
     Workspace service is `$KBASE_ENDPOINT/ws`, which resolves in CI to
-    `https://ci.kbase.us/services//ws` (note the broken form, it should really be
-    `https://ci.kbase.us/services/ws`).
+    `https://appdev.kbase.us/services//ws` (note the broken form, it should really be
+    `https://appdev.kbase.us/services/ws`).
 
     Note that this is both an incomplete and obsolete set of service urls. In practice,
     service paths as described above have never changed once deployed, so it is both
