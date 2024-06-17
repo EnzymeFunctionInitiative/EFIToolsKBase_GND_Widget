@@ -10,7 +10,6 @@ class GndParams:
 		# internal variables
 		self.id_param = [param for param in params if param.endswith("-id")][0]
 		self.db = params.get(self.id_param) + ".sqlite"
-		print("HEY: " + self.db)
 
 		# from the query string
 		self.P["gnn_id"] = params.get(self.id_param)
@@ -162,7 +161,7 @@ class GndParams:
 			self.P["cooccurrence"] = int(cooccurrence * 100)
 		
 		self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"
-		print(json.dumps(self.P, indent=2))
+		# print(json.dumps(self.P, indent=2))
 		return self.P
 
 class Widget(WidgetBase):

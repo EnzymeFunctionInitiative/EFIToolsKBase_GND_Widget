@@ -70,6 +70,7 @@ class sahasWidget:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_sahasWidget
+        self.callback_url = os.environ['SDK_CALLBACK_URL']
         report = KBaseReport(self.callback_url)
         report_info = report.create({'report': {'objects_created':[],
                                                 'text_message': params['parameter_1']},
