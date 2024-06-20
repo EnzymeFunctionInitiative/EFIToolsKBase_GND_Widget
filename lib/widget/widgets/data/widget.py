@@ -4,7 +4,7 @@ import json
 import time
 
 class GND:
-  def __init__(self, db, query_range, scale_factor, window):
+  def __init__(self, db, query_range, scale_factor, window, query):
     self.db = db
     self.output = {
       "message": "",
@@ -15,6 +15,7 @@ class GND:
     self.scale_factor = scale_factor
     self.query_range = query_range
     self.window = window
+    self.query = query
 
   def error_output(self, message):
     self.output["message"] = message
@@ -30,6 +31,15 @@ class GND:
     conn.close()
     return data
   
+  def check_table_exists(self, table_name): 
+    conn = sqlite3.connect(self.db) 
+    cursor = conn.cursor() 
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,)) 
+    result = cursor.fetchone() 
+    cursor.close() 
+    conn.close() 
+    return result is not None
+  
   def check_column_exists(self, column, table):
     query = f"PRAGMA table_info({table})"
     columns = [row[1] for row in self.fetch_data(query)]
@@ -39,7 +49,17 @@ class GND:
     stats = {}
     
     # gets the only value in the end_index column of the cluster_index table
-    max_index = self.fetch_data("SELECT end_index FROM cluster_index LIMIT 1")[0][0]
+    # cluster: the difference between end_index and start_index in the row 
+    # where cluster_num = QUERY of the cluster_index table, uniref90_cluster_index 
+    # if that table exists
+    if self.check_table_exists("uniref90_cluster_index"):
+      table_name = "uniref90_cluster_index"
+    else:
+      table_name = "cluster_index"
+    
+    start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
+    end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
+    max_index = end_index - start_index
     # total diagram number, so max_index + 1, since it's zero-indexed
     num_checked = max_index + 1
     # assumes it starts at 0 and ends at max_index
@@ -295,11 +315,11 @@ class Widget(WidgetBase):
     def render(self) -> str:
         id_query = "gnn-id" if self.has_param("gnn-id") else "direct-id"
         if self.has_param('query'):
-            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')))
+            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'))
             json_data = my_gnd.generate_json()
             return json_data
         elif self.has_param('range'):
-            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')))
+            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None)
             json_data = my_gnd.generate_json()
             return json_data
         return super().render()
