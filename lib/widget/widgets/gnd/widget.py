@@ -171,5 +171,26 @@ class Widget(WidgetBase):
 		for param in possible_params:
 			if self.has_param(param):
 				params[param] = self.get_param(param)
+
+		if not any(params.values()):
+			return "Oops! No parameters provided."
+
 		gnd_params = GndParams(params)
 		return gnd_params.retrieve_info()
+	
+	def render(self) -> str:
+		possible_params = ["direct-id", "gnn-id", "key", "id-type", "uniref-id"]
+		for param in possible_params:
+			if self.has_param(param):
+				return super().render()
+		return """
+		Welcome to the base GND endpoint. Enter params to query specific database files.
+		<br>
+		<br>
+		Examples of possible URLs with params:
+		<ul>
+			<li><a href="/widgets/gnd?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">/widgets/gnd?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
+			<li><a href="/widgets/gnd?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">/widgets/gnd?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
+			<li><a href="/widgets/gnd?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">/widgets/gnd?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
+		</ul>
+		""".encode("utf-8")

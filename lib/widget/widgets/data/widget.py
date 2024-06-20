@@ -309,7 +309,20 @@ class GND:
 class Widget(WidgetBase):
     def context(self):
         return {
-          "message": "Welcome to the base data endpoint. Use params to specify the data you want to see."
+          "message": """
+            Welcome to the base data endpoint. Use params to to specify the data you want to see.
+            <br>
+            <br>
+            Examples of possible URLs with params:
+            <ul>
+              <li><a href="/widgets/data?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30093</a></li>
+              <li><a href="/widgets/data?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&scale-factor=7.5&range=140-159&id-type=uniprot">Sample range call for 30093</a></li>
+              <li><a href="/widgets/data?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30095</a></li>
+              <li><a href="/widgets/data?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-17&id-type=uniprot">Sample range call for 30095</a></li>
+              <li><a href="/widgets/data?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&query=2&stats=1">Initial call for 7671 cluster job, query = 2</a></li>
+              <li><a href="/widgets/data?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-19&id-type=90">Sample range call for 7671 cluster job, query = 2</a></li>
+            </ul>
+            """
         }
     
     def render(self) -> str:
