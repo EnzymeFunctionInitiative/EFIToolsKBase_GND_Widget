@@ -1,17 +1,12 @@
-module-name:
-    sahasWidget
+module-name: sahasWidget
 
-module-description:
-    A KBase module
+module-description: A KBase module
 
-service-language:
-    python
+service-language: python
 
-module-version:
-    0.0.1
+module-version: 0.0.2
 
-owners:
-    [sahas]
+owners: [sahas]
 
 service-config:
-    dynamic-service: true
+  dynamic-service: true
