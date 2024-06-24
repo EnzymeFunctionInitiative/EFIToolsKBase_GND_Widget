@@ -1,3 +1,4 @@
+import sys
 from widget.lib.widget_base import WidgetBase
 import sqlite3
 import json
@@ -45,6 +46,22 @@ class GND:
     columns = [row[1] for row in self.fetch_data(query)]
     return column in columns
   
+  def see_results(self, start_index, end_index):
+    max_bp = -1_000_000
+    uniref90_range = self.fetch_data(f"SELECT start_index, end_index FROM uniref90_range WHERE uniref_index >= {start_index} AND uniref_index <= {end_index}")
+    for elem in uniref90_range:
+      uniref_indices = self.fetch_data(f"SELECT cluster_index FROM uniref90_index WHERE member_index >= {elem[0]} AND member_index <= {elem[1]}")
+      for index in uniref_indices:
+        n = self.fetch_data(f"SELECT num FROM attributes WHERE cluster_index = {index[0]}")[0][0]
+        neighbor_accessions = self.fetch_data(f"SELECT seq_len, num FROM neighbors WHERE gene_key = {index[0] + 1} ORDER BY num")
+        for neighbor_accession in neighbor_accessions:
+          if neighbor_accession[1] < n - (self.window) or neighbor_accession[1] > n + (self.window): continue
+          print(str(neighbor_accession[0]), end=", ")
+          # print(str(neighbor_accession[1]) + "(num)", end=", ")
+        print()
+      print("--------------------")
+    print("MAX_BP: " + str(max_bp))
+
   def get_stats(self):
     stats = {}
     
@@ -59,11 +76,13 @@ class GND:
     
     start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
     end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
+    if table_name == "uniref90_cluster_index":
+      self.see_results(start_index, end_index)
     max_index = end_index - start_index
     # total diagram number, so max_index + 1, since it's zero-indexed
     num_checked = max_index + 1
     # assumes it starts at 0 and ends at max_index
-    index_range = [[0, max_index]]
+    index_range = [[start_index, end_index]]
     # get the minimum value of the rel_start column in neighbors
     min_bp = self.fetch_data("SELECT MIN(rel_start) FROM neighbors")[0][0]
     # get the maximum value of the rel_stop column in neighbors
@@ -73,6 +92,7 @@ class GND:
     # get the maximum difference between rel_stop and rel_start in attributes
     query_width = self.fetch_data("SELECT MAX(abs(rel_stop - rel_start)) AS max_diff FROM attributes")[0][0]
     # max absolute value of min_bp and max_bp times 2 plus query_width
+    # max_side = max(abs(max_bp), abs(min_bp))
     actual_max_width = abs(max_bp) if abs(max_bp) > abs(min_bp) else abs(min_bp) * 2 + query_width
     # scale factor starts as 7.5 by default, zoom in and zoom out should multiply or divide by 4, respectively
     scale_factor = self.scale_factor
