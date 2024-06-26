@@ -158,6 +158,8 @@ class GndParams:
 		self.P["blast_seq"] = self.fetch_data("SELECT sequence FROM metadata")[0][0]
 		cooccurrence = self.fetch_data("SELECT cooccurrence FROM metadata")[0][0]
 		if cooccurrence != None:
+			# this is just a theory to account for why nb_size is not the same as it is in the metadata table
+			self.P["nb_size"] /= int(cooccurrence * 10)
 			self.P["cooccurrence"] = int(cooccurrence * 100)
 		
 		self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"

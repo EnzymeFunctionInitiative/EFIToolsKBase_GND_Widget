@@ -46,22 +46,31 @@ class GND:
     columns = [row[1] for row in self.fetch_data(query)]
     return column in columns
   
-  def see_results(self, start_index, end_index):
-    max_bp = -1_000_000
+  def get_cluster_index_table_name(self):
+    if self.check_table_exists("uniref90_cluster_index"):
+      return "uniref90_cluster_index"
+    return "cluster_index"
+
+  def is_direct_job(self):
+    return self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] != "gnn"
+  
+  def get_cluster_num_from_query(self):
+    index_range = self.query_range.split("-")
+    return self.fetch_data(f"SELECT cluster_num FROM {self.get_cluster_index_table_name()} WHERE start_index <= {index_range[0]} AND end_index >= {index_range[1]}")[0][0]
+
+  def print_cluster_neighbors(self, start_index, end_index):
     uniref90_range = self.fetch_data(f"SELECT start_index, end_index FROM uniref90_range WHERE uniref_index >= {start_index} AND uniref_index <= {end_index}")
     for elem in uniref90_range:
       uniref_indices = self.fetch_data(f"SELECT cluster_index FROM uniref90_index WHERE member_index >= {elem[0]} AND member_index <= {elem[1]}")
       for index in uniref_indices:
         n = self.fetch_data(f"SELECT num FROM attributes WHERE cluster_index = {index[0]}")[0][0]
-        neighbor_accessions = self.fetch_data(f"SELECT seq_len, num FROM neighbors WHERE gene_key = {index[0] + 1} ORDER BY num")
+        neighbor_accessions = self.fetch_data(f"SELECT * FROM neighbors WHERE gene_key = {index[0] + 1} ORDER BY num")
         for neighbor_accession in neighbor_accessions:
-          if neighbor_accession[1] < n - (self.window) or neighbor_accession[1] > n + (self.window): continue
-          print(str(neighbor_accession[0]), end=", ")
-          # print(str(neighbor_accession[1]) + "(num)", end=", ")
+          # if neighbor_accession[1] < n - (self.window) or neighbor_accession[1] > n + (self.window): continue
+          print(neighbor_accession)
         print()
       print("--------------------")
-    print("MAX_BP: " + str(max_bp))
-
+    
   def get_stats(self):
     stats = {}
     
@@ -77,7 +86,7 @@ class GND:
     start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
     end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
     if table_name == "uniref90_cluster_index":
-      self.see_results(start_index, end_index)
+      self.print_cluster_neighbors(start_index, end_index)
     max_index = end_index - start_index
     # total diagram number, so max_index + 1, since it's zero-indexed
     num_checked = max_index + 1
@@ -160,7 +169,8 @@ class GND:
   def get_attributes(self, idx):
     attributes = {}
     # get values from the required row based on id and store it in a result array
-    query = f"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, evalue, family_desc, ipro_family_desc, color, sort_order, is_bound FROM attributes WHERE cluster_index = {idx}"
+    print(f"CLUSTER_NUM = {self.get_cluster_num_from_query()}")
+    query = f"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num FROM attributes WHERE cluster_num = {self.get_cluster_num_from_query()}"
     result = self.fetch_data(query)[0]
     family_values = self.get_family_values(result[3], result[4], result[18], result[19])
 
@@ -197,6 +207,8 @@ class GND:
     }
     if result[17] != None:
       attributes["evalue"] = result[17]
+    if result[23] != None and not self.is_direct_job():
+      attributes["cluster_num"] = result[23]
     if self.check_column_exists("uniref90_size", "attributes"):
       attributes["uniref90_size"] = self.fetch_data(f"SELECT uniref90_size FROM attributes WHERE cluster_index = {idx}")[0][0]
     if self.check_column_exists("uniref50_size", "attributes"):
@@ -315,13 +327,13 @@ class GND:
     self.compute_rel_coords()
 
   def generate_json(self):
-    try:
-      if self.query_range == "":
-        self.get_stats()
-      else:
-        self.get_arrow_data()
-    except Exception as e:
-      self.error_output(str(e))
+    # try:
+    if self.query_range == "":
+      self.get_stats()
+    else:
+      self.get_arrow_data()
+    # except Exception as e:
+    #   self.error_output(str(e))
     self.output["totaltime"] = time.time() - self.output["totaltime"]
     json_data = json.dumps(self.output).encode('utf-8')
     return json_data
