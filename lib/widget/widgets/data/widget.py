@@ -85,8 +85,8 @@ class GND:
     
     start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
     end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
-    if table_name == "uniref90_cluster_index":
-      self.print_cluster_neighbors(start_index, end_index)
+    # if table_name == "uniref90_cluster_index":
+    #   self.print_cluster_neighbors(start_index, end_index)
     max_index = end_index - start_index
     # total diagram number, so max_index + 1, since it's zero-indexed
     num_checked = max_index + 1
@@ -169,8 +169,7 @@ class GND:
   def get_attributes(self, idx):
     attributes = {}
     # get values from the required row based on id and store it in a result array
-    print(f"CLUSTER_NUM = {self.get_cluster_num_from_query()}")
-    query = f"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num FROM attributes WHERE cluster_num = {self.get_cluster_num_from_query()}"
+    query = f"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num FROM attributes WHERE cluster_index = { idx }"
     result = self.fetch_data(query)[0]
     family_values = self.get_family_values(result[3], result[4], result[18], result[19])
 
@@ -256,16 +255,26 @@ class GND:
     neighbors.sort(key=lambda x: x["num"])
     return neighbors
 
+  def is_cluster_child(self, attr):
+    return ("uniref90_size" in attr and attr["uniref90_size"] == 0) or ("uniref50_size" in attr and attr["uniref50_size"] == 0)
+    
   def retrieve_and_process(self):
     self.output["data"] = []
     start_index = int(self.query_range.split("-")[0])
     end_index = int(self.query_range.split("-")[1])
+    if not self.is_direct_job():
+      start_index = self.fetch_data(f"SELECT start_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
     # assumes that cluster index is zero-indexed and serves as the index for every attributes table
     for idx in range(start_index, end_index + 1):
       elem = {}
       elem["attributes"] = self.get_attributes(idx)
       elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
+      if self.is_cluster_child(elem["attributes"]):
+        print("HI THERE")
+        continue
       self.output["data"].append(elem)
+    self.output["data"].sort(key=lambda x: x["attributes"].get("uniref90_size", 0), reverse=True)
     
   def compute_rel_coords(self):
     max_width = 300000 / self.scale_factor
