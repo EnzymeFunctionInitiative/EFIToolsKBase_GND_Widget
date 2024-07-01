@@ -377,7 +377,7 @@
                     var gndVars = new GndVars();
                     // Initialize constant vars
                     gndVars.setPageSize(200);
-                    gndVars.setUrlPath("http://localhost:5100/widgets/data");
+                    gndVars.setUrlPath("{{ widget_asset_url.split('widgets/')[0] + 'widgets/data' }}");
                     gndVars.setAuthString("{{ id_key_query_string }}");
                     gndVars.setWindow({{ nb_size }});
                     if (superfamilySupport)

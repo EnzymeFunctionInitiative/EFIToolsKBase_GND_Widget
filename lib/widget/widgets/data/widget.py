@@ -58,7 +58,8 @@ class GND:
     index_range = self.query_range.split("-")
     return self.fetch_data(f"SELECT cluster_num FROM {self.get_cluster_index_table_name()} WHERE start_index <= {index_range[0]} AND end_index >= {index_range[1]}")[0][0]
 
-  def print_cluster_neighbors(self, start_index, end_index):
+  def get_cluster_neighbors(self, start_index, end_index):
+    result = ""
     uniref90_range = self.fetch_data(f"SELECT start_index, end_index FROM uniref90_range WHERE uniref_index >= {start_index} AND uniref_index <= {end_index}")
     for elem in uniref90_range:
       uniref_indices = self.fetch_data(f"SELECT cluster_index FROM uniref90_index WHERE member_index >= {elem[0]} AND member_index <= {elem[1]}")
@@ -67,10 +68,54 @@ class GND:
         neighbor_accessions = self.fetch_data(f"SELECT * FROM neighbors WHERE gene_key = {index[0] + 1} ORDER BY num")
         for neighbor_accession in neighbor_accessions:
           # if neighbor_accession[1] < n - (self.window) or neighbor_accession[1] > n + (self.window): continue
-          print(neighbor_accession)
-        print()
-      print("--------------------")
+          result += str(neighbor_accession) + "\n"
+        result += "\n"
+      result += "--------------------\n"
+    return result
+  
+  def get_cluster_neighbors2(self, start_index, end_index):
+    query = f"""
+    WITH uniref90_range_subset AS (
+      SELECT start_index, end_index
+      FROM uniref90_range
+      WHERE uniref_index >= {start_index} AND uniref_index <= {end_index}
+    ),
+    uniref_indices AS (
+      SELECT DISTINCT ur.start_index, ur.end_index, ui.cluster_index
+      FROM uniref90_range_subset ur
+      JOIN uniref90_index ui ON ui.member_index >= ur.start_index AND ui.member_index <= ur.end_index
+    ),
+    cluster_data AS (
+      SELECT ui.start_index, ui.end_index, ui.cluster_index, a.num
+      FROM uniref_indices ui
+      JOIN attributes a ON a.cluster_index = ui.cluster_index
+    )
+    SELECT cd.start_index, cd.end_index, cd.cluster_index, cd.num, n.seq_len
+    FROM cluster_data cd
+    LEFT JOIN neighbors n ON n.gene_key = cd.cluster_index + 1
+    ORDER BY cd.start_index, cd.end_index, cd.cluster_index, n.num
+    """
     
+    results = self.fetch_data(query)
+    
+    result = ""
+    current_cluster = None
+    for row in results:
+      start_index, end_index, cluster_index, num, seq_len = row
+      
+      if current_cluster != (start_index, end_index, cluster_index):
+        if current_cluster is not None:
+          result += "\n"
+          result += "--------------------\n"
+        current_cluster = (start_index, end_index, cluster_index)
+      
+      if seq_len is not None:
+        result += f"{seq_len}, "
+    
+    result += "\n"
+    result += "--------------------\n"
+    return result
+  
   def get_stats(self):
     stats = {}
     
@@ -85,8 +130,10 @@ class GND:
     
     start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
     end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
+
     # if table_name == "uniref90_cluster_index":
-    #   self.print_cluster_neighbors(start_index, end_index)
+    #   print(self.get_cluster_neighbors2(start_index, end_index))
+
     max_index = end_index - start_index
     # total diagram number, so max_index + 1, since it's zero-indexed
     num_checked = max_index + 1
@@ -264,15 +311,14 @@ class GND:
     end_index = int(self.query_range.split("-")[1])
     if not self.is_direct_job():
       start_index = self.fetch_data(f"SELECT start_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
-      end_index = self.fetch_data(f"SELECT end_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
+      end_index = min(self.fetch_data(f"SELECT end_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0], start_index + 20)
     # assumes that cluster index is zero-indexed and serves as the index for every attributes table
     for idx in range(start_index, end_index + 1):
+      # print(f"Processing index {idx}")
       elem = {}
       elem["attributes"] = self.get_attributes(idx)
       elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
-      if self.is_cluster_child(elem["attributes"]):
-        print("HI THERE")
-        continue
+      if self.is_cluster_child(elem["attributes"]): continue
       self.output["data"].append(elem)
     self.output["data"].sort(key=lambda x: x["attributes"].get("uniref90_size", 0), reverse=True)
     

@@ -32,7 +32,7 @@ class GndParams:
 		# job type
 		self.P["is_uploaded_diagram"] = "true" if "upload-id" in params else "false"
 		self.P["is_superfamily_job"] = "true" if "rs-id" in params else "false"
-		self.P["is_direct_job"] = "true" if "direct-id" in params else "false"
+		self.P["is_direct_job"] = "true" if "direct-id" in params or "uniref-id" in params else "false"
 		self.P["is_realtime_job"] = "false"
 
 		# unmatched ids
@@ -128,10 +128,8 @@ class GndParams:
 			self.P["gnn_type"] = "FASTA header ID lookup"
 		elif type == "ID_LOOKUP":
 			self.P["gnn_type"] = "Sequence ID lookup"
-		elif type == "gnn":
-			self.P["gnn_type"] = "GNN"
 		else:
-			self.P["is_direct_job"] = "false"
+			self.P["gnn_type"] = "GNN"
 
 		self.P["has_unmatched_ids"] = self.check_table_exists("unmatched")
 		if self.P["has_unmatched_ids"] == "true":
