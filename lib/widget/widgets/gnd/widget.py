@@ -166,6 +166,7 @@ class GndParams:
 
 class Widget(WidgetBase):
 	def context(self):
+		print(f"HI: {self.get_widget_asset_url()}")
 		possible_params = ["direct-id", "gnn-id", "key", "id-type", "uniref-id"]
 		params = {}
 		for param in possible_params:
