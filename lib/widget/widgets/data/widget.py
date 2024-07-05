@@ -5,7 +5,7 @@ import json
 import time
 
 class GND:
-  def __init__(self, db, query_range, scale_factor, window, query):
+  def __init__(self, db, query_range, scale_factor, window, query, uniref_id):
     self.db = db
     self.output = {
       "message": "",
@@ -17,12 +17,14 @@ class GND:
     self.query_range = query_range
     self.window = window
     self.query = query
+    self.uniref_id = uniref_id
 
   def error_output(self, message):
     self.output["message"] = message
     self.output["error"] = True
     self.output["eod"] = True
 
+  # TODO: we need to change this to prevent SQL injection, since it is used for every query on the database
   def fetch_data(self, query):
     conn = sqlite3.connect(self.db)
     cursor = conn.cursor()
@@ -51,8 +53,12 @@ class GND:
       return "uniref90_cluster_index"
     return "cluster_index"
 
+  # here, everything is either a direct (ncluding uniref) job or a gnn job
   def is_direct_job(self):
-    return self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] != "gnn"
+    return (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] != "gnn") or self.uniref_id != ""
+  
+  def is_gnn_job(self):
+    return (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] == "gnn")
   
   def get_cluster_num_from_query(self):
     index_range = self.query_range.split("-")
@@ -128,8 +134,12 @@ class GND:
     else:
       table_name = "cluster_index"
     
-    start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
-    end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
+    if self.uniref_id == "":
+      start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
+    else:
+      start_index = self.fetch_data(f"SELECT start_index FROM uniref90_range WHERE uniref_id = '{self.uniref_id}'")[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM uniref90_range WHERE uniref_id = '{self.uniref_id}'")[0][0]
 
     # if table_name == "uniref90_cluster_index":
     #   print(self.get_cluster_neighbors2(start_index, end_index))
@@ -155,8 +165,10 @@ class GND:
     # time data is populated with the numbers, but didn't include times because my process of fetching and querying is different
     time_data = "#Ids: " + str(num_checked) + ", #Queries: " + str(num_checked * 2) + ", QueryTime: 0, #Fetch: " + str(self.fetch_data("SELECT COUNT(*) FROM attributes")[0][0] + self.fetch_data("SELECT COUNT(*) FROM neighbors")[0][0]) + ", FetchTime: 0, Total: 0 PROC=0 PARSE=0"
 
-    # This should be the only logic required for the get_stats call, since use_cluster_id_map cannot be true yet
-    if self.fetch_data("SELECT CASE WHEN EXISTS (SELECT 1 FROM sqlite_master WHERE name = 'uniref50_index') THEN 1 ELSE 0 END;")[0][0] == 1:
+    # This code tells the GND whether or not to display the plus buttons and additional info uniref jobs have
+    if self.uniref_id != "":
+      has_uniref = False
+    elif self.fetch_data("SELECT CASE WHEN EXISTS (SELECT 1 FROM sqlite_master WHERE name = 'uniref50_index') THEN 1 ELSE 0 END;")[0][0] == 1:
       has_uniref = 50
     elif self.fetch_data("SELECT CASE WHEN EXISTS (SELECT 1 FROM sqlite_master WHERE name = 'uniref90_index') THEN 1 ELSE 0 END;")[0][0] == 1:
       has_uniref = 90
@@ -253,11 +265,11 @@ class GND:
     }
     if result[17] != None:
       attributes["evalue"] = result[17]
-    if result[23] != None and not self.is_direct_job():
+    if result[23] != None and self.is_gnn_job():
       attributes["cluster_num"] = result[23]
-    if self.check_column_exists("uniref90_size", "attributes"):
+    if self.check_column_exists("uniref90_size", "attributes") and self.uniref_id == "":
       attributes["uniref90_size"] = self.fetch_data(f"SELECT uniref90_size FROM attributes WHERE cluster_index = {idx}")[0][0]
-    if self.check_column_exists("uniref50_size", "attributes"):
+    if self.check_column_exists("uniref50_size", "attributes") and self.uniref_id == "":
       attributes["uniref50_size"] = self.fetch_data(f"SELECT uniref50_size FROM attributes WHERE cluster_index = {idx}")[0][0]
     return attributes
   
@@ -314,7 +326,9 @@ class GND:
       end_index = min(self.fetch_data(f"SELECT end_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0], start_index + 20)
     # assumes that cluster index is zero-indexed and serves as the index for every attributes table
     for idx in range(start_index, end_index + 1):
-      # print(f"Processing index {idx}")
+      # if it's a uniref_id, we have to translate from member_index to cluster_index
+      if self.uniref_id != "":
+        idx = self.fetch_data(f"SELECT cluster_index FROM uniref90_index WHERE member_index = {idx}")[0][0]
       elem = {}
       elem["attributes"] = self.get_attributes(idx)
       elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
@@ -402,24 +416,28 @@ class Widget(WidgetBase):
             <br>
             Examples of possible URLs with params:
             <ul>
-              <li><a href="/widgets/data?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30093</a></li>
-              <li><a href="/widgets/data?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&scale-factor=7.5&range=140-159&id-type=uniprot">Sample range call for 30093</a></li>
-              <li><a href="/widgets/data?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30095</a></li>
-              <li><a href="/widgets/data?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-17&id-type=uniprot">Sample range call for 30095</a></li>
-              <li><a href="/widgets/data?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&query=2&stats=1">Initial call for 7671 cluster job, query = 2</a></li>
-              <li><a href="/widgets/data?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-19&id-type=90">Sample range call for 7671 cluster job, query = 2</a></li>
+              <li><a href="?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30093</a></li>
+              <li><a href="?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&scale-factor=7.5&range=140-159&id-type=uniprot">Sample range call for 30093</a></li>
+              <li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30095</a></li>
+              <li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-17&id-type=uniprot">Sample range call for 30095</a></li>
+              <li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&query=2&stats=1">Initial call for 7671 cluster job, query = 2</a></li>
+              <li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-19&id-type=90">Sample range call for 7671 cluster job, query = 2</a></li>
             </ul>
             """
         }
     
     def render(self) -> str:
         id_query = "gnn-id" if self.has_param("gnn-id") else "direct-id"
+        if self.has_param("uniref-id"):
+          uniref_id = self.get_param("uniref-id")
+        else:
+          uniref_id = ""
         if self.has_param('query'):
-            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'))
+            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'), uniref_id=uniref_id)
             json_data = my_gnd.generate_json()
             return json_data
         elif self.has_param('range'):
-            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None)
+            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None, uniref_id=uniref_id)
             json_data = my_gnd.generate_json()
             return json_data
         return super().render()

@@ -160,13 +160,17 @@ class GndParams:
 			self.P["nb_size"] /= int(cooccurrence * 10)
 			self.P["cooccurrence"] = int(cooccurrence * 100)
 		
-		self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"
+		# manually add the uniref-id to the query string since it isn't there already
+		# TODO: add the id-type field to the query string once we start processing uniref50 and uniref90 separately
+		if self.P["uniref_id"] == "":
+			self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"
+		else:
+			self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}&uniref-id={self.P['uniref_id']}"
 		# print(json.dumps(self.P, indent=2))
 		return self.P
 
 class Widget(WidgetBase):
 	def context(self):
-		print(f"HI: {self.get_widget_asset_url()}")
 		possible_params = ["direct-id", "gnn-id", "key", "id-type", "uniref-id"]
 		params = {}
 		for param in possible_params:
@@ -190,8 +194,8 @@ class Widget(WidgetBase):
 		<br>
 		Examples of possible URLs with params:
 		<ul>
-			<li><a href="/widgets/gnd?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">/widgets/gnd?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
-			<li><a href="/widgets/gnd?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">/widgets/gnd?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
-			<li><a href="/widgets/gnd?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">/widgets/gnd?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
+			<li><a href="?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
+			<li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
+			<li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
 		</ul>
 		""".encode("utf-8")
