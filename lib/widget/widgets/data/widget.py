@@ -25,23 +25,25 @@ class GND:
     self.output["eod"] = True
 
   # TODO: we need to change this to prevent SQL injection, since it is used for every query on the database
-  def fetch_data(self, query):
+  def fetch_data(self, query, params=None):
     conn = sqlite3.connect(self.db)
-    cursor = conn.cursor()
-    cursor.execute(query)
-    data = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return data
+    try:
+      cursor = conn.cursor()
+      if params:
+        cursor.execute(query, params)
+      else:
+        cursor.execute(query)
+      data = cursor.fetchall()
+      return data
+    finally:
+      cursor.close()
+      conn.close()
+
   
   def check_table_exists(self, table_name): 
-    conn = sqlite3.connect(self.db) 
-    cursor = conn.cursor() 
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,)) 
-    result = cursor.fetchone() 
-    cursor.close() 
-    conn.close() 
-    return result is not None
+    query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
+    result = self.fetch_data(query, (table_name,))
+    return len(result) > 0
   
   def check_column_exists(self, column, table):
     query = f"PRAGMA table_info({table})"
@@ -62,7 +64,9 @@ class GND:
   
   def get_cluster_num_from_query(self):
     index_range = self.query_range.split("-")
-    return self.fetch_data(f"SELECT cluster_num FROM {self.get_cluster_index_table_name()} WHERE start_index <= {index_range[0]} AND end_index >= {index_range[1]}")[0][0]
+    query = f"SELECT cluster_num FROM {self.get_cluster_index_table_name()} WHERE start_index <= ? AND end_index >= ?"
+    result = self.fetch_data(query, (index_range[0], index_range[1]))
+    return result[0][0] if result else None
 
   def get_cluster_neighbors(self, start_index, end_index):
     result = ""
@@ -228,8 +232,14 @@ class GND:
   def get_attributes(self, idx):
     attributes = {}
     # get values from the required row based on id and store it in a result array
-    query = f"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num FROM attributes WHERE cluster_index = { idx }"
-    result = self.fetch_data(query)[0]
+    query = """
+    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
+          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
+          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
+    FROM attributes 
+    WHERE cluster_index = ?
+    """
+    result = self.fetch_data(query, (idx,))[0]
     family_values = self.get_family_values(result[3], result[4], result[18], result[19])
 
     attributes = {
