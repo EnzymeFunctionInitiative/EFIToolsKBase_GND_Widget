@@ -5,6 +5,7 @@ import json
 import time
 from typing import List, Dict, Union, Tuple, Optional, Any
 from contextlib import contextmanager
+import hashlib
 
 @contextmanager
 def db_connection(db_path):
@@ -28,6 +29,7 @@ class GND:
     self.window = window
     self.query = query
     self.uniref_id = uniref_id
+    self.query_cache = {}
 
   def error_output(self, message: str) -> None:
     self.output["message"] = message
@@ -35,13 +37,20 @@ class GND:
     self.output["eod"] = True
 
   def fetch_data(self, query: str, params: Optional[Tuple] = None) -> List[Tuple]:
+    cache_key = hashlib.md5((query + str(params)).encode()).hexdigest()
+    if cache_key in self.query_cache:
+      print("Cache hit! ---for query: ", query)
+      return self.query_cache[cache_key]
+    
     with db_connection(self.db) as conn:
       cursor = conn.cursor()
       if params:
         cursor.execute(query, params)
       else:
         cursor.execute(query)
-      return cursor.fetchall()
+      result = cursor.fetchall()
+      self.query_cache[cache_key] = result
+      return result
 
   
   def check_table_exists(self, table_name: str) -> bool: 
