@@ -3,9 +3,10 @@ from widget.lib.widget_base import WidgetBase
 import sqlite3
 import json
 import time
+from typing import List, Dict, Union, Tuple, Optional, Any
 
 class GND:
-  def __init__(self, db, query_range, scale_factor, window, query, uniref_id):
+  def __init__(self, db: str, query_range: str, scale_factor: float, window: int, query: Optional[str], uniref_id: str):
     self.db = db
     self.output = {
       "message": "",
@@ -19,13 +20,12 @@ class GND:
     self.query = query
     self.uniref_id = uniref_id
 
-  def error_output(self, message):
+  def error_output(self, message: str) -> None:
     self.output["message"] = message
     self.output["error"] = True
     self.output["eod"] = True
 
-  # TODO: we need to change this to prevent SQL injection, since it is used for every query on the database
-  def fetch_data(self, query, params=None):
+  def fetch_data(self, query: str, params: Optional[Tuple] = None) -> List[Tuple]:
     conn = sqlite3.connect(self.db)
     try:
       cursor = conn.cursor()
@@ -40,7 +40,7 @@ class GND:
       conn.close()
 
   
-  def check_table_exists(self, table_name): 
+  def check_table_exists(self, table_name: str) -> bool: 
     query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
     result = self.fetch_data(query, (table_name,))
     return len(result) > 0
@@ -50,25 +50,25 @@ class GND:
     columns = [row[1] for row in self.fetch_data(query)]
     return column in columns
   
-  def get_cluster_index_table_name(self):
+  def get_cluster_index_table_name(self) -> str:
     if self.check_table_exists("uniref90_cluster_index"):
       return "uniref90_cluster_index"
     return "cluster_index"
 
   # here, everything is either a direct (ncluding uniref) job or a gnn job
-  def is_direct_job(self):
+  def is_direct_job(self) -> bool:
     return (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] != "gnn") or self.uniref_id != ""
   
-  def is_gnn_job(self):
+  def is_gnn_job(self) -> bool:
     return (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] == "gnn")
   
-  def get_cluster_num_from_query(self):
+  def get_cluster_num_from_query(self) -> int:
     index_range = self.query_range.split("-")
     query = f"SELECT cluster_num FROM {self.get_cluster_index_table_name()} WHERE start_index <= ? AND end_index >= ?"
     result = self.fetch_data(query, (index_range[0], index_range[1]))
     return result[0][0] if result else None
 
-  def get_cluster_neighbors(self, start_index, end_index):
+  def get_cluster_neighbors(self, start_index: int, end_index: int) -> str:
     result = ""
     uniref90_range = self.fetch_data("SELECT start_index, end_index FROM uniref90_range WHERE uniref_index >= ? AND uniref_index <= ?", (start_index, end_index))
     for elem in uniref90_range:
@@ -83,7 +83,7 @@ class GND:
       result += "--------------------\n"
     return result
   
-  def get_cluster_neighbors2(self, start_index, end_index):
+  def get_cluster_neighbors2(self, start_index: int, end_index: int) -> str:
     query = f"""
     WITH uniref90_range_subset AS (
       SELECT start_index, end_index
@@ -126,7 +126,7 @@ class GND:
     result += "--------------------\n"
     return result
   
-  def get_stats(self):
+  def get_stats(self) -> None:
     stats = {}
     
     # gets the only value in the end_index column of the cluster_index table
@@ -196,7 +196,7 @@ class GND:
 
     self.output["stats"] = stats
   
-  def get_family_values(self, family_str, ipro_family_str, family_desc_str, ipro_family_desc_str):
+  def get_family_values(self, family_str: str, ipro_family_str: str, family_desc_str: str, ipro_family_desc_str: str) -> Dict[str, List[str]]:
     if family_str == "":
       family = ["none-query"]
     elif family_str == "none":
@@ -230,7 +230,7 @@ class GND:
       "ipro_family_desc": ipro_family_desc
     }
   
-  def get_attributes(self, idx):
+  def get_attributes(self, idx: int) -> Dict[str, Union[str, int, List[str], float, bool]]:
     attributes = {}
     # get values from the required row based on id and store it in a result array
     query = """
@@ -284,7 +284,7 @@ class GND:
       attributes["uniref50_size"] = self.fetch_data(f"SELECT uniref50_size FROM attributes WHERE cluster_index = ?", (idx, ))[0][0]
     return attributes
   
-  def get_neighbors(self, n, idx):
+  def get_neighbors(self, n: int, idx: int) -> List[Dict[str, Union[str, int, List[str], float]]]:
     neighbors = []
     query = "SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '" + str(idx + 1) + "'"
     query += " ORDER BY num"
@@ -325,10 +325,10 @@ class GND:
     neighbors.sort(key=lambda x: x["num"])
     return neighbors
 
-  def is_cluster_child(self, attr):
+  def is_cluster_child(self, attr: Dict[str, Any]) -> bool:
     return ("uniref90_size" in attr and attr["uniref90_size"] == 0) or ("uniref50_size" in attr and attr["uniref50_size"] == 0)
     
-  def retrieve_and_process(self):
+  def retrieve_and_process(self) -> None:
     self.output["data"] = []
     start_index = int(self.query_range.split("-")[0])
     end_index = int(self.query_range.split("-")[1])
@@ -347,7 +347,7 @@ class GND:
       self.output["data"].append(elem)
     self.output["data"].sort(key=lambda x: x["attributes"].get("uniref90_size", 0), reverse=True)
     
-  def compute_rel_coords(self):
+  def compute_rel_coords(self) -> None:
     max_width = 300000 / self.scale_factor
     max_query_width = 0
     max_side = max_width / 2
@@ -392,7 +392,7 @@ class GND:
     self.output["min_bp"] = min_bp
     self.output["scale_factor"] = self.scale_factor
       
-  def get_arrow_data(self):
+  def get_arrow_data(self) -> None:
     queries = int(self.query_range.split("-")[1]) - int(self.query_range.split("-")[0]) + 1
     self.output.update({
       "scale_factor": self.scale_factor,
@@ -406,7 +406,7 @@ class GND:
     self.retrieve_and_process()
     self.compute_rel_coords()
 
-  def generate_json(self):
+  def generate_json(self) -> bytes:
     # try:
     if self.query_range == "":
       self.get_stats()
@@ -419,37 +419,38 @@ class GND:
     return json_data
 
 class Widget(WidgetBase):
-    def context(self):
-        return {
-          "message": """
-            Welcome to the base data endpoint. Use params to to specify the data you want to see.
-            <br>
-            <br>
-            Examples of possible URLs with params:
-            <ul>
-              <li><a href="?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30093</a></li>
-              <li><a href="?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&scale-factor=7.5&range=140-159&id-type=uniprot">Sample range call for 30093</a></li>
-              <li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30095</a></li>
-              <li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-17&id-type=uniprot">Sample range call for 30095</a></li>
-              <li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&query=2&stats=1">Initial call for 7671 cluster job, query = 2</a></li>
-              <li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-19&id-type=90">Sample range call for 7671 cluster job, query = 2</a></li>
-            </ul>
-            """
-        }
+  def context(self) -> Dict[str, str]:
+    return {
+      "message":
+      """
+        Welcome to the base data endpoint. Use params to to specify the data you want to see.
+        <br>
+        <br>
+        Examples of possible URLs with params:
+        <ul>
+          <li><a href="?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30093</a></li>
+          <li><a href="?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&scale-factor=7.5&range=140-159&id-type=uniprot">Sample range call for 30093</a></li>
+          <li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&query=1&stats=1">Initial call for 30095</a></li>
+          <li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-17&id-type=uniprot">Sample range call for 30095</a></li>
+          <li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&query=2&stats=1">Initial call for 7671 cluster job, query = 2</a></li>
+          <li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=20&scale-factor=7.5&range=0-19&id-type=90">Sample range call for 7671 cluster job, query = 2</a></li>
+        </ul>
+      """
+    }
     
-    def render(self) -> str:
-        id_query = "gnn-id" if self.has_param("gnn-id") else "direct-id"
-        if self.has_param("uniref-id"):
-          uniref_id = self.get_param("uniref-id")
-        else:
-          uniref_id = ""
-        if self.has_param('query'):
-            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'), uniref_id=uniref_id)
-            json_data = my_gnd.generate_json()
-            return json_data
-        elif self.has_param('range'):
-            my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None, uniref_id=uniref_id)
-            json_data = my_gnd.generate_json()
-            return json_data
-        return super().render()
+  def render(self) -> Union[str, bytes]:
+    id_query = "gnn-id" if self.has_param("gnn-id") else "direct-id"
+    if self.has_param("uniref-id"):
+      uniref_id = self.get_param("uniref-id")
+    else:
+      uniref_id = ""
+    if self.has_param('query'):
+        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'), uniref_id=uniref_id)
+        json_data = my_gnd.generate_json()
+        return json_data
+    elif self.has_param('range'):
+        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None, uniref_id=uniref_id)
+        json_data = my_gnd.generate_json()
+        return json_data
+    return super().render()
 
