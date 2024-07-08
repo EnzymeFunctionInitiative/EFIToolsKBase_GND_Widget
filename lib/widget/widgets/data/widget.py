@@ -4,6 +4,15 @@ import sqlite3
 import json
 import time
 from typing import List, Dict, Union, Tuple, Optional, Any
+from contextlib import contextmanager
+
+@contextmanager
+def db_connection(db_path):
+  conn = sqlite3.connect(db_path)
+  try:
+    yield conn
+  finally:
+    conn.close()
 
 class GND:
   def __init__(self, db: str, query_range: str, scale_factor: float, window: int, query: Optional[str], uniref_id: str):
@@ -26,18 +35,13 @@ class GND:
     self.output["eod"] = True
 
   def fetch_data(self, query: str, params: Optional[Tuple] = None) -> List[Tuple]:
-    conn = sqlite3.connect(self.db)
-    try:
+    with db_connection(self.db) as conn:
       cursor = conn.cursor()
       if params:
         cursor.execute(query, params)
       else:
         cursor.execute(query)
-      data = cursor.fetchall()
-      return data
-    finally:
-      cursor.close()
-      conn.close()
+      return cursor.fetchall()
 
   
   def check_table_exists(self, table_name: str) -> bool: 
