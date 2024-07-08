@@ -70,12 +70,12 @@ class GND:
 
   def get_cluster_neighbors(self, start_index, end_index):
     result = ""
-    uniref90_range = self.fetch_data(f"SELECT start_index, end_index FROM uniref90_range WHERE uniref_index >= {start_index} AND uniref_index <= {end_index}")
+    uniref90_range = self.fetch_data("SELECT start_index, end_index FROM uniref90_range WHERE uniref_index >= ? AND uniref_index <= ?", (start_index, end_index))
     for elem in uniref90_range:
-      uniref_indices = self.fetch_data(f"SELECT cluster_index FROM uniref90_index WHERE member_index >= {elem[0]} AND member_index <= {elem[1]}")
+      uniref_indices = self.fetch_data("SELECT cluster_index FROM uniref90_index WHERE member_index >= ? AND member_index <= ?", (elem[0], elem[1]))
       for index in uniref_indices:
-        n = self.fetch_data(f"SELECT num FROM attributes WHERE cluster_index = {index[0]}")[0][0]
-        neighbor_accessions = self.fetch_data(f"SELECT * FROM neighbors WHERE gene_key = {index[0] + 1} ORDER BY num")
+        n = self.fetch_data(f"SELECT num FROM attributes WHERE cluster_index = ?", (index[0], ))[0][0]
+        neighbor_accessions = self.fetch_data("SELECT * FROM neighbors WHERE gene_key = ? ORDER BY num", ({index[0] + 1}, ))
         for neighbor_accession in neighbor_accessions:
           # if neighbor_accession[1] < n - (self.window) or neighbor_accession[1] > n + (self.window): continue
           result += str(neighbor_accession) + "\n"
@@ -139,11 +139,12 @@ class GND:
       table_name = "cluster_index"
     
     if self.uniref_id == "":
-      start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
-      end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = {self.query}")[0][0]
+      start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = ?", (self.query, ))[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = ?", (self.query, ))[0][0]
     else:
-      start_index = self.fetch_data(f"SELECT start_index FROM uniref90_range WHERE uniref_id = '{self.uniref_id}'")[0][0]
-      end_index = self.fetch_data(f"SELECT end_index FROM uniref90_range WHERE uniref_id = '{self.uniref_id}'")[0][0]
+      # shouldn not need to worry about injection here since the argument is already taken as a string literal
+      start_index = self.fetch_data(f"SELECT start_index FROM uniref90_range WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM uniref90_range WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
 
     # if table_name == "uniref90_cluster_index":
     #   print(self.get_cluster_neighbors2(start_index, end_index))
@@ -278,9 +279,9 @@ class GND:
     if result[23] != None and self.is_gnn_job():
       attributes["cluster_num"] = result[23]
     if self.check_column_exists("uniref90_size", "attributes") and self.uniref_id == "":
-      attributes["uniref90_size"] = self.fetch_data(f"SELECT uniref90_size FROM attributes WHERE cluster_index = {idx}")[0][0]
+      attributes["uniref90_size"] = self.fetch_data(f"SELECT uniref90_size FROM attributes WHERE cluster_index = ?", (idx, ))[0][0]
     if self.check_column_exists("uniref50_size", "attributes") and self.uniref_id == "":
-      attributes["uniref50_size"] = self.fetch_data(f"SELECT uniref50_size FROM attributes WHERE cluster_index = {idx}")[0][0]
+      attributes["uniref50_size"] = self.fetch_data(f"SELECT uniref50_size FROM attributes WHERE cluster_index = ?", (idx, ))[0][0]
     return attributes
   
   def get_neighbors(self, n, idx):
@@ -338,7 +339,7 @@ class GND:
     for idx in range(start_index, end_index + 1):
       # if it's a uniref_id, we have to translate from member_index to cluster_index
       if self.uniref_id != "":
-        idx = self.fetch_data(f"SELECT cluster_index FROM uniref90_index WHERE member_index = {idx}")[0][0]
+        idx = self.fetch_data(f"SELECT cluster_index FROM uniref90_index WHERE member_index = ?", (idx, ))[0][0]
       elem = {}
       elem["attributes"] = self.get_attributes(idx)
       elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
