@@ -39,7 +39,6 @@ class GND:
   def fetch_data(self, query: str, params: Optional[Tuple] = None) -> List[Tuple]:
     cache_key = hashlib.md5((query + str(params)).encode()).hexdigest()
     if cache_key in self.query_cache:
-      print("Cache hit! ---for query: ", query)
       return self.query_cache[cache_key]
     
     with db_connection(self.db) as conn:

@@ -1,16 +1,28 @@
 import json
 from widget.lib.widget_base import WidgetBase
 import sqlite3
+from typing import Dict, List, Any, Optional, Tuple, Union
+from contextlib import contextmanager
+import hashlib
+
+@contextmanager
+def db_connection(db_path):
+  conn = sqlite3.connect(db_path)
+  try:
+    yield conn
+  finally:
+    conn.close()
 
 class GndParams:
-	def __init__(self, params):
+	def __init__(self, params: Dict[str, str]) -> None:
 		# the P object
 		self.P = {}
 
 		# internal variables
 		self.id_param = [param for param in params if param.endswith("-id")][0]
 		self.db = params.get(self.id_param) + ".sqlite"
-
+		self.query_cache = {}
+		
 		# from the query string
 		self.P["gnn_id"] = params.get(self.id_param)
 		self.P["gnn_key"] = params.get("key", "")
@@ -54,16 +66,22 @@ class GndParams:
 		self.P["bigscape_modal_close_text"] = ""
 		self.P["max_nb_size"] = 20
 
-	def fetch_data(self, query):
-		conn = sqlite3.connect(self.db)
-		cursor = conn.cursor()
-		cursor.execute(query)
-		data = cursor.fetchall()
-		cursor.close()
-		conn.close()
-		return data
+	def fetch_data(self, query: str, params: Optional[Tuple] = None) -> List[Tuple]:
+		cache_key = hashlib.md5((query + str(params)).encode()).hexdigest()
+		if cache_key in self.query_cache:
+			return self.query_cache[cache_key]
+		
+		with db_connection(self.db) as conn:
+			cursor = conn.cursor()
+			if params:
+				cursor.execute(query, params)
+			else:
+				cursor.execute(query)
+			result = cursor.fetchall()
+			self.query_cache[cache_key] = result
+			return result
 
-	def check_table_exists(self, table_name):
+	def check_table_exists(self, table_name: str) -> str:
 		conn = sqlite3.connect(self.db)
 		cursor = conn.cursor()
 		cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
@@ -72,7 +90,7 @@ class GndParams:
 		conn.close()
 		return "true" if result is not None else "false"
 	
-	def get_realtime_params(self):
+	def get_realtime_params(self) -> bool:
 		self.P["id_key_query_string"] = "mode=rt"
 		self.P["gnn_name_text"] = "A"
 		self.P["nb_size_title"] = ""
@@ -82,7 +100,7 @@ class GndParams:
 		return True
 
 	# copied over exactly from efi-web
-	def get_ids_from_accessions(self):
+	def get_ids_from_accessions(self) -> List[str]:
 		ids = []
 		rows = self.fetch_data("SELECT accession FROM attributes ORDER BY accession")
 		for row in rows:
@@ -90,7 +108,7 @@ class GndParams:
 		return ids
 	
 	# copied over exactly from efi-web
-	def get_ids_from_match_table(self):
+	def get_ids_from_match_table(self) -> Dict[str, str]:
 		ids = {}
 		rows = self.fetch_data("SELECT uniprot_id, id_list FROM matched ORDER BY uniprot_id")
 		for row in rows:
@@ -98,7 +116,7 @@ class GndParams:
 		return ids
 	
 	# copied over exactly from efi-web
-	def get_uniprot_ids(self):
+	def get_uniprot_ids(self) -> Union[List[str], Dict[str, str]]:
 		ids = []
 		if not self.check_table_exists("matched"):
 			raw_ids = self.get_ids_from_accessions()
@@ -108,7 +126,7 @@ class GndParams:
 			ids = self.get_ids_from_match_table()
 		return ids
 
-	def retrieve_info(self):
+	def retrieve_info(self) -> Dict[str, Any]:
 		name = self.fetch_data("SELECT name FROM metadata")[0][0]
 		if name != None and name != "":
 			self.P["gnn_name"] = "<i>" + name + "</i>" if self.id_param != "gnn-id" else "GNN <i>" + name + "</i>"
@@ -170,7 +188,7 @@ class GndParams:
 		return self.P
 
 class Widget(WidgetBase):
-	def context(self):
+	def context(self) -> Union[str, Dict[str, Any]]:
 		possible_params = ["direct-id", "gnn-id", "key", "id-type", "uniref-id"]
 		params = {}
 		for param in possible_params:

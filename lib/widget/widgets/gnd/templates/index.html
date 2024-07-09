@@ -477,19 +477,26 @@
                 $('[data-toggle="tooltip"]').tooltip();
 
                 $("#save-canvas-button").click(function(e) {
-                    var svg = escape($("#arrow-canvas")[0].outerHTML);
-                    var data = filterUi.getLegendSvg();//TODO
-                    var legendSvgMarkup = escape(data[1]);
-                    
-                    var dlForm = $("<form></form>");
-                    dlForm.attr("method", "POST");
-                    dlForm.attr("action", "download_diagram_image.php");
-                    dlForm.append('<input type="hidden" name="type" value="svg">');
-                    // dlForm.append('<input type="hidden" name="name" value="<?php echo str_replace("'", "\\'", {{gnn_name}}); ?>">');
-                    dlForm.append('<input type="hidden" name="svg" value="' + svg + '">');
-                    dlForm.append('<input type="hidden" name="legend1-svg" value="' + legendSvgMarkup + '">');
-                    $("#download-forms").append(dlForm);
-                    dlForm.submit();
+                    var svg = $("#arrow-canvas")[0].outerHTML;
+                    var legendSvg = filterUi.getLegendSvg();
+                    var combinedSvg = `
+                        <svg xmlns="http://www.w3.org/2000/svg">
+                            ${svg}
+                            ${legendSvg}
+                        </svg>
+                    `;
+                    var blob = new Blob([combinedSvg], {type: "image/svg+xml;charset=utf-8"});
+                    var url = URL.createObjectURL(blob);
+
+                    var downloadLink = document.createElement("a");
+                    downloadLink.href = url;
+                    downloadLink.download = "diagram.svg";
+
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+
+                    URL.revokeObjectURL(url);
                 });
 
                 $("#export-gene-graphics-button").click(function(e) {
