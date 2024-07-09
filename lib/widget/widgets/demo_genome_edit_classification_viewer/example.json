@@ -14666,7 +14666,7 @@
                 },
                 {
                     "name": "WsLargeDataIO",
-                    "ver": "0.0.3-beta",
+                    "ver": "0.1.0-beta",
                     "code_url": "https://github.com/kbaseapps/WsLargeDataIO",
                     "commit": "8d76a294f3877be83cce9b51daebe541acc107d3"
                 }
