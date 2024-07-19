@@ -10,3 +10,5 @@ __pycache__
 deploy.cfg.orig
 *.bak-*
 # END DS-WIDGET GIT-IGNORE
+
+7668.sqlite
