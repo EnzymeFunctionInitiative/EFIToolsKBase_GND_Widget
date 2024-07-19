@@ -6,6 +6,7 @@ import time
 from typing import List, Dict, Union, Tuple, Optional, Any
 from contextlib import contextmanager
 import hashlib
+from collections import defaultdict
 
 @contextmanager
 def db_connection(db_path):
@@ -16,7 +17,7 @@ def db_connection(db_path):
     conn.close()
 
 class GND:
-  def __init__(self, db: str, query_range: str, scale_factor: float, window: int, query: Optional[str], uniref_id: str):
+  def __init__(self, db: str, query_range: str, scale_factor: float, window: int, query: Optional[str], uniref_id: str, id_type: Any):
     self.db = db
     self.output = {
       "message": "",
@@ -29,20 +30,72 @@ class GND:
     self.window = window
     self.query = query
     self.uniref_id = uniref_id
+    self.id_type = id_type
+
     self.query_cache = {}
+    self.total_queries = 0
+    self.indexed_queries = 0
+    self.query_types = defaultdict(int)
+
+    self.set_uniref_table_names()
+
+  def set_uniref_table_names(self):
+    # if this is the get_stats call, then id_type is not passed, it is 50 or 90
+    # the program should not use these variables for non-uniref jobs at all
+    if self.id_type == "":
+      self.UNIREF_CLUSTER_INDEX = "uniref50_cluster_index" if self.check_table_exists("uniref50_cluster_index") else "uniref90_cluster_index" if self.check_table_exists("uniref90_cluster_index") else "cluster_index"
+      self.UNIREF_RANGE = "uniref50_range" if self.check_table_exists("uniref50_cluster_index") else "uniref90_range" if self.check_table_exists("uniref90_cluster_index") else ""
+      self.UNIREF_INDEX = "uniref50_index" if self.check_table_exists("uniref50_cluster_index") else "uniref90_index" if self.check_table_exists("uniref90_cluster_index") else ""
+    else:
+      self.UNIREF_CLUSTER_INDEX = "uniref50_cluster_index" if self.id_type == "50" else "uniref90_cluster_index" if self.id_type == "90" else "cluster_index"
+      self.UNIREF_RANGE = "uniref50_range" if self.id_type == "50" else "uniref90_range" if self.id_type == "90" else ""
+      self.UNIREF_INDEX = "uniref50_index" if self.id_type == "50" else "uniref90_index" if self.id_type == "90" else ""
 
   def error_output(self, message: str) -> None:
     self.output["message"] = message
     self.output["error"] = True
     self.output["eod"] = True
 
+  def analyze_plan(self, plan):
+    uses_index = any('USING INDEX' in str(row) for row in plan)
+    self.total_queries += 1
+    if uses_index:
+      self.indexed_queries += 1
+    
+    for row in plan:
+      if 'SCAN TABLE' in str(row):
+        self.query_types['TABLE SCAN'] += 1
+      elif 'USING INDEX' in str(row):
+        self.query_types['INDEX SCAN'] += 1
+      elif 'SEARCH TABLE' in str(row):
+        self.query_types['TABLE SEARCH'] += 1
+
+  def print_stats(self):
+    print(f"\nQuery Statistics:")
+    print(f"Total queries: {self.total_queries}")
+    print(f"Queries using index: {self.indexed_queries}")
+    print(f"Percentage of queries using index: {self.indexed_queries/self.total_queries*100:.2f}%")
+    print("\nQuery Types:")
+    for query_type, count in self.query_types.items():
+      print(f"  {query_type}: {count} ({count/self.total_queries*100:.2f}%)")
+
   def fetch_data(self, query: str, params: Optional[Tuple] = None) -> List[Tuple]:
     cache_key = hashlib.md5((query + str(params)).encode()).hexdigest()
+    
     if cache_key in self.query_cache:
       return self.query_cache[cache_key]
     
     with db_connection(self.db) as conn:
       cursor = conn.cursor()
+      
+      explain_query = f"EXPLAIN QUERY PLAN {query}"
+      if params:
+        cursor.execute(explain_query, params)
+      else:
+        cursor.execute(explain_query)
+      plan = cursor.fetchall()
+      self.analyze_plan(plan)
+      
       if params:
         cursor.execute(query, params)
       else:
@@ -51,32 +104,31 @@ class GND:
       self.query_cache[cache_key] = result
       return result
 
-  
   def check_table_exists(self, table_name: str) -> bool: 
     query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?"
-    result = self.fetch_data(query, (table_name,))
+    result = self.fetch_data(query, (table_name,), )
     return len(result) > 0
   
   def check_column_exists(self, column, table):
     query = f"PRAGMA table_info({table})"
     columns = [row[1] for row in self.fetch_data(query)]
     return column in columns
-  
-  def get_cluster_index_table_name(self) -> str:
-    if self.check_table_exists("uniref90_cluster_index"):
-      return "uniref90_cluster_index"
-    return "cluster_index"
 
   # here, everything is either a direct (ncluding uniref) job or a gnn job
   def is_direct_job(self) -> bool:
-    return (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] != "gnn") or self.uniref_id != ""
+    return (
+      (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] != "gnn")
+      or self.uniref_id != ""
+      # TODO: we know this is wrong and should be uniprot, but keep as placeholder until the request payload matches that of the live version
+      or self.id_type == "uniref"
+    )
   
   def is_gnn_job(self) -> bool:
     return (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] == "gnn")
   
   def get_cluster_num_from_query(self) -> int:
     index_range = self.query_range.split("-")
-    query = f"SELECT cluster_num FROM {self.get_cluster_index_table_name()} WHERE start_index <= ? AND end_index >= ?"
+    query = f"SELECT cluster_num FROM {self.UNIREF_CLUSTER_INDEX} WHERE start_index <= ? AND end_index >= ?"
     result = self.fetch_data(query, (index_range[0], index_range[1]))
     return result[0][0] if result else None
   
@@ -86,19 +138,14 @@ class GND:
     # gets the only value in the end_index column of the cluster_index table
     # cluster: the difference between end_index and start_index in the row 
     # where cluster_num = QUERY of the cluster_index table, uniref90_cluster_index 
-    # if that table exists
-    if self.check_table_exists("uniref90_cluster_index"):
-      table_name = "uniref90_cluster_index"
-    else:
-      table_name = "cluster_index"
-    
+    # if that table exists, otherwise cluster_index
     if self.uniref_id == "":
-      start_index = self.fetch_data(f"SELECT start_index FROM {table_name} WHERE cluster_num = ?", (self.query, ))[0][0]
-      end_index = self.fetch_data(f"SELECT end_index FROM {table_name} WHERE cluster_num = ?", (self.query, ))[0][0]
+      start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ?", (self.query, ))[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ?", (self.query, ))[0][0]
     else:
       # shouldn not need to worry about injection here since the argument is already taken as a string literal
-      start_index = self.fetch_data(f"SELECT start_index FROM uniref90_range WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
-      end_index = self.fetch_data(f"SELECT end_index FROM uniref90_range WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
+      start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_RANGE} WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_RANGE} WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
 
     max_index = end_index - start_index
     # total diagram number, so max_index + 1, since it's zero-indexed
@@ -122,6 +169,7 @@ class GND:
     time_data = "#Ids: " + str(num_checked) + ", #Queries: " + str(num_checked * 2) + ", QueryTime: 0, #Fetch: " + str(self.fetch_data("SELECT COUNT(*) FROM attributes")[0][0] + self.fetch_data("SELECT COUNT(*) FROM neighbors")[0][0]) + ", FetchTime: 0, Total: 0 PROC=0 PARSE=0"
 
     # This code tells the GND whether or not to display the plus buttons and additional info uniref jobs have
+    print(f"HEY THERE! ID TYPE IS {self.id_type}")
     if self.uniref_id != "":
       has_uniref = False
     elif self.fetch_data("SELECT CASE WHEN EXISTS (SELECT 1 FROM sqlite_master WHERE name = 'uniref50_index') THEN 1 ELSE 0 END;")[0][0] == 1:
@@ -291,7 +339,6 @@ class GND:
       indices = self.fetch_data("SELECT cluster_index FROM uniref90_range WHERE uniref_index BETWEEN ? AND ?", (start_index, end_index))
       # start_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[0], ))[0][0]
       # end_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[1], ))[0][0]
-      print(f"Here you go: {indices}")
     # assumes that cluster index is zero-indexed and serves as the index for every attributes table
     for idx in indices:
       if isinstance(idx, tuple):
@@ -375,6 +422,7 @@ class GND:
     #   self.error_output(str(e))
     self.output["totaltime"] = time.time() - self.output["totaltime"]
     json_data = json.dumps(self.output).encode('utf-8')
+    # self.print_stats()
     return json_data
 
 class Widget(WidgetBase):
@@ -403,12 +451,16 @@ class Widget(WidgetBase):
       uniref_id = self.get_param("uniref-id")
     else:
       uniref_id = ""
+    if self.has_param("id-type"):
+      id_type = self.get_param("id-type")
+    else:
+      id_type = ""
     if self.has_param('query'):
-        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'), uniref_id=uniref_id)
+        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'), uniref_id=uniref_id, id_type=id_type)
         json_data = my_gnd.generate_json()
         return json_data
     elif self.has_param('range'):
-        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None, uniref_id=uniref_id)
+        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None, uniref_id=uniref_id, id_type=id_type)
         json_data = my_gnd.generate_json()
         return json_data
     return super().render()
