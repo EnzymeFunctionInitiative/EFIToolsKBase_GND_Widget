@@ -120,7 +120,7 @@ class GND:
       (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] != "gnn")
       or self.uniref_id != ""
       # TODO: we know this is wrong and should be uniprot, but keep as placeholder until the request payload matches that of the live version
-      or self.id_type == "uniref"
+      or self.id_type == "uniprot"
     )
   
   def is_gnn_job(self) -> bool:
@@ -143,7 +143,6 @@ class GND:
       start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ?", (self.query, ))[0][0]
       end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ?", (self.query, ))[0][0]
     else:
-      # shouldn not need to worry about injection here since the argument is already taken as a string literal
       start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_RANGE} WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
       end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_RANGE} WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
 
@@ -341,6 +340,7 @@ class GND:
       # end_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[1], ))[0][0]
     # assumes that cluster index is zero-indexed and serves as the index for every attributes table
     for idx in indices:
+      # if it is not a direct job, we have to do a little extra parsing
       if isinstance(idx, tuple):
         idx = idx[0]
       # if it's a uniref_id, we have to translate from member_index to cluster_index
@@ -349,9 +349,10 @@ class GND:
       elem = {}
       elem["attributes"] = self.get_attributes(idx)
       elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
-      if self.is_cluster_child(elem["attributes"]): continue
+      if self.is_cluster_child(elem["attributes"]) and self.id_type != "uniprot": continue
       self.output["data"].append(elem)
-    self.output["data"].sort(key=lambda x: x["attributes"].get("uniref90_size", 0), reverse=True)
+    if self.id_type != "uniprot":
+      self.output["data"].sort(key=lambda x: x["attributes"].get("uniref90_size", 0), reverse=True)
     
   def compute_rel_coords(self) -> None:
     max_width = 300000 / self.scale_factor
