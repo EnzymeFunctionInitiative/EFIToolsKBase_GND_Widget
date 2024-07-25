@@ -52,14 +52,7 @@
                             src="{{ widget_asset_url }}/img/efignt_logo55.png" width="157" height="55" alt="EFI GNT Logo" style="margin-left:10px;" /></a>
                     </td>
                     <td id="header-body-title" class="header-title">
-                        Genome Neighborhood Diagrams for {{ gnn_name }}
-
-                        {% if uniref_id == "" %}
-                            <span id="cluster-uniref-id" class="display: none"><br></span>
-                        {% else %}
-                            (UniProt IDs in UniRef90 cluster ID {{ uniref_id }})
-                        {% endif %}
-                        
+                        Genome Neighborhood Diagrams for {{ gnn_name }} <span id="cluster-uniref-id" class="display: none"><br></span>
                     </td>
                     <td id="header-job-info">
                         {% if is_direct_job == "true" %}

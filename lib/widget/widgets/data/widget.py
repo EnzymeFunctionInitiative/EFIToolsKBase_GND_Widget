@@ -88,13 +88,13 @@ class GND:
     with db_connection(self.db) as conn:
       cursor = conn.cursor()
       
-      explain_query = f"EXPLAIN QUERY PLAN {query}"
-      if params:
-        cursor.execute(explain_query, params)
-      else:
-        cursor.execute(explain_query)
-      plan = cursor.fetchall()
-      self.analyze_plan(plan)
+      # explain_query = f"EXPLAIN QUERY PLAN {query}"
+      # if params:
+      #   cursor.execute(explain_query, params)
+      # else:
+      #   cursor.execute(explain_query)
+      # plan = cursor.fetchall()
+      # self.analyze_plan(plan)
       
       if params:
         cursor.execute(query, params)
@@ -119,7 +119,6 @@ class GND:
     return (
       (self.check_table_exists("metadata") and self.fetch_data("SELECT type FROM metadata")[0][0] != "gnn")
       or self.uniref_id != ""
-      # TODO: we know this is wrong and should be uniprot, but keep as placeholder until the request payload matches that of the live version
       or self.id_type == "uniprot"
     )
   
@@ -168,12 +167,9 @@ class GND:
     time_data = "#Ids: " + str(num_checked) + ", #Queries: " + str(num_checked * 2) + ", QueryTime: 0, #Fetch: " + str(self.fetch_data("SELECT COUNT(*) FROM attributes")[0][0] + self.fetch_data("SELECT COUNT(*) FROM neighbors")[0][0]) + ", FetchTime: 0, Total: 0 PROC=0 PARSE=0"
 
     # This code tells the GND whether or not to display the plus buttons and additional info uniref jobs have
-    print(f"HEY THERE! ID TYPE IS {self.id_type}")
-    if self.uniref_id != "":
-      has_uniref = False
-    elif self.fetch_data("SELECT CASE WHEN EXISTS (SELECT 1 FROM sqlite_master WHERE name = 'uniref50_index') THEN 1 ELSE 0 END;")[0][0] == 1:
+    if self.check_table_exists("uniref50_index"):
       has_uniref = 50
-    elif self.fetch_data("SELECT CASE WHEN EXISTS (SELECT 1 FROM sqlite_master WHERE name = 'uniref90_index') THEN 1 ELSE 0 END;")[0][0] == 1:
+    elif self.check_table_exists("uniref90_index"):
       has_uniref = 90
     else:
       has_uniref = False
@@ -324,8 +320,14 @@ class GND:
     return neighbors
 
   def is_cluster_child(self, attr: Dict[str, Any]) -> bool:
-    return ("uniref90_size" in attr and attr["uniref90_size"] == 0) or ("uniref50_size" in attr and attr["uniref50_size"] == 0)
-    
+    if "uniref90_size" in attr and "uniref50_size" not in attr:
+      return attr["uniref90_size"] == 0
+    if "uniref50_size" in attr and "uniref90_size" not in attr:
+      return attr["uniref50_size"] == 0
+    if "uniref50_size" in attr and "uniref90_size" in attr:
+      return attr["uniref50_size"] == 0 and attr["uniref90_size"] == 0
+    return False
+  
   def retrieve_and_process(self) -> None:
     self.output["data"] = []
     start_index = int(self.query_range.split("-")[0])
@@ -334,8 +336,7 @@ class GND:
     if not self.is_direct_job():
       # start_index = self.fetch_data(f"SELECT start_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
       # end_index = self.fetch_data(f"SELECT end_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
-
-      indices = self.fetch_data("SELECT cluster_index FROM uniref90_range WHERE uniref_index BETWEEN ? AND ?", (start_index, end_index))
+      indices = self.fetch_data(f"SELECT cluster_index FROM {self.UNIREF_RANGE} WHERE uniref_index BETWEEN ? AND ?", (start_index, end_index))
       # start_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[0], ))[0][0]
       # end_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[1], ))[0][0]
     # assumes that cluster index is zero-indexed and serves as the index for every attributes table
@@ -345,14 +346,19 @@ class GND:
         idx = idx[0]
       # if it's a uniref_id, we have to translate from member_index to cluster_index
       if self.uniref_id != "":
-        idx = self.fetch_data(f"SELECT cluster_index FROM uniref90_index WHERE member_index = ?", (idx, ))[0][0]
+        idx = self.fetch_data(f"SELECT cluster_index FROM {self.UNIREF_INDEX} WHERE member_index = ?", (idx, ))[0][0]
+      
       elem = {}
       elem["attributes"] = self.get_attributes(idx)
       elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
-      if self.is_cluster_child(elem["attributes"]) and self.id_type != "uniprot": continue
+      if self.is_cluster_child(elem["attributes"]) and self.id_type != "uniprot":
+        continue
       self.output["data"].append(elem)
     if self.id_type != "uniprot":
-      self.output["data"].sort(key=lambda x: x["attributes"].get("uniref90_size", 0), reverse=True)
+      if self.id_type == "90":
+        self.output["data"].sort(key=lambda x: x["attributes"].get("uniref90_size", 0), reverse=True)
+      else:
+        self.output["data"].sort(key=lambda x: x["attributes"].get("uniref50_size", 0), reverse=True)
     
   def compute_rel_coords(self) -> None:
     max_width = 300000 / self.scale_factor
@@ -447,15 +453,9 @@ class Widget(WidgetBase):
     }
     
   def render(self) -> Union[str, bytes]:
-    id_query = "gnn-id" if self.has_param("gnn-id") else "direct-id"
-    if self.has_param("uniref-id"):
-      uniref_id = self.get_param("uniref-id")
-    else:
-      uniref_id = ""
-    if self.has_param("id-type"):
-      id_type = self.get_param("id-type")
-    else:
-      id_type = ""
+    id_query = "gnn-id" if self.has_param("gnn-id") else "direct-id" if self.has_param("direct-id") else "upload-id"
+    uniref_id = self.get_param("uniref-id") if self.has_param("uniref-id") else ""
+    id_type = self.get_param("id-type") if self.has_param("id-type") else ""
     if self.has_param('query'):
         my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'), uniref_id=uniref_id, id_type=id_type)
         json_data = my_gnd.generate_json()

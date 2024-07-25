@@ -31,6 +31,7 @@ class GndParams:
 		self.P["gnn_download_name"] = str(self.P["gnn_id"]) + "_"
 		self.P["uniref_version"] = params.get("id-type", "")
 		self.P["uniref_id"] = params.get("uniref-id", "")
+		self.P["id_type"] = params.get("id-type", "")
 
 		# from the database
 		self.P["nb_size"] = 10
@@ -89,15 +90,6 @@ class GndParams:
 		cursor.close()
 		conn.close()
 		return "true" if result is not None else "false"
-	
-	def get_realtime_params(self) -> bool:
-		self.P["id_key_query_string"] = "mode=rt"
-		self.P["gnn_name_text"] = "A"
-		self.P["nb_size_title"] = ""
-		self.P["is_realtime_job"] = "true"
-		self.P["gnn_id"] = -1
-		self.P["gnn_key"] = ""
-		return True
 
 	# copied over exactly from efi-web
 	def get_ids_from_accessions(self) -> List[str]:
@@ -118,7 +110,7 @@ class GndParams:
 	# copied over exactly from efi-web
 	def get_uniprot_ids(self) -> Union[List[str], Dict[str, str]]:
 		ids = []
-		if not self.check_table_exists("matched"):
+		if self.check_table_exists("matched") == "false":
 			raw_ids = self.get_ids_from_accessions()
 			for raw_id in raw_ids:
 				ids.append(raw_id)
@@ -129,7 +121,12 @@ class GndParams:
 	def retrieve_info(self) -> Dict[str, Any]:
 		name = self.fetch_data("SELECT name FROM metadata")[0][0]
 		if name != None and name != "":
-			self.P["gnn_name"] = "<i>" + name + "</i>" if self.id_param != "gnn-id" else "GNN <i>" + name + "</i>"
+			if self.id_param == "upload-id":
+				self.P["gnn_name"] = "filename <i>" + name + "</i>"
+			elif self.id_param == "direct-id":
+				self.P["gnn_name"] = "<i>" + name + "</i>"
+			else:
+				self.P["gnn_name"] = "GNN <i>" + name + "</i>"
 			self.P["gnn_download_name"] += name
 			self.P["window_title"] = "for GNN " + name + " (#" + self.P["gnn_id"] + ")" if self.id_param == "gnn-id" else "for " + name + " (#" + self.P["gnn_id"] + ")"
 		nb_size = self.fetch_data("SELECT neighborhood_size FROM metadata")[0][0]
@@ -139,8 +136,7 @@ class GndParams:
 		type = self.fetch_data("SELECT type FROM metadata")[0][0]
 		if type == "BLAST":
 			self.P["gnn_type"] = "Sequence BLAST"
-			# this convention is not great but it is a workaround so we can use the resulting value as a boolean
-			# in both the Jinja2 and JavaScript
+			# this convention is not great but it is a workaround so we can use the resulting value as a boolean in both the Jinja2 and JavaScript
 			self.P["is_blast"] = "true"
 		elif type == "FASTA":
 			self.P["gnn_type"] = "FASTA header ID lookup"
@@ -180,16 +176,17 @@ class GndParams:
 		
 		# manually add the uniref-id to the query string since it isn't there already
 		# TODO: add the id-type field to the query string once we start processing uniref50 and uniref90 separately
-		if self.P["uniref_id"] == "":
-			self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"
-		else:
-			self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}&uniref-id={self.P['uniref_id']}"
+		self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"
+		if self.P["uniref_id"] != "": self.P["id_key_query_string"] += "&uniref-id=" + self.P['uniref_id']
+		if self.P["id_type"] != "": self.P["id_key_query_string"] += "&id-type=" + self.P['id_type']
+
+		print("ID KEY QUERY: ", self.P["id_key_query_string"])
 		# print(json.dumps(self.P, indent=2))
 		return self.P
 
 class Widget(WidgetBase):
 	def context(self) -> Union[str, Dict[str, Any]]:
-		possible_params = ["direct-id", "gnn-id", "key", "id-type", "uniref-id"]
+		possible_params = ["direct-id", "gnn-id", "upload-id", "key", "id-type", "uniref-id"]
 		params = {}
 		for param in possible_params:
 			if self.has_param(param):
