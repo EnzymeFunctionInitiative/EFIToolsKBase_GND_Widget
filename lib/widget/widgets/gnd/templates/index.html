@@ -222,10 +222,6 @@
                                             <i class="fas fa-download" aria-hidden="true"></i> Download Data as SQLite
                                         </a></li>
                                     {% endif %}
-                                    <li><a id="download-data" href="download_files.php?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&type=data-file"
-                                        title="Download the data to upload it for future analysis using this tool.">
-                                                <i class="fas fa-download" aria-hidden="true"></i> Download Data as SQLite
-                                            </a></li>
                                 </ul>
                             </div>
 
@@ -493,10 +489,85 @@
                 });
 
                 $("#export-gene-graphics-button").click(function(e) {
-                    var url = control.getGetUrl(0, control.getMaxViewIndex());
-                    url = url.replace("get_gnd_data.php", "get_gene_graphics.php");
-                    window.location = url;
+                    e.preventDefault();
+
+                    // Fetch data from the endpoint
+                    fetch('http://localhost:5100/widgets/data?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&scale-factor=7.5&range=40-59&id-type=uniprot')
+                        .then(response => response.json())
+                        .then(data => {
+                            // Generate the TSV content
+                            var output = "Genome\tID\tStart\tStop\tSize (nt)\tStrand\tFunction\tFC\tSS\tSet\n";
+
+                            data.data.forEach(function(row) {
+                                var A = row.attributes;
+                                var org = A.organism;
+                                var num = A.num;
+                                var queryProcessed = false;
+
+                                row.neighbors.forEach(function(N) {
+                                    if (N.num > num && !queryProcessed) {
+                                        queryProcessed = true;
+                                        output += getLine(org, A, false);  // Set to true if you want to include InterPro data
+                                    }
+                                    output += getLine(org, N, false);  // Set to true if you want to include InterPro data
+                                });
+                            });
+
+                            // Create a Blob with the TSV content
+                            var blob = new Blob([output], {type: "text/tab-separated-values;charset=utf-8"});
+
+                            // Create a downloadable URL
+                            var url = URL.createObjectURL(blob);
+
+                            // Create a temporary anchor element for downloading
+                            var downloadLink = document.createElement("a");
+                            downloadLink.href = url;
+                            downloadLink.download = "gene_graphics.tsv";
+
+                            // Trigger the download
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+
+                            // Clean up the URL object
+                            URL.revokeObjectURL(url);
+                        })
+                        .catch(error => console.error('Error:', error));
                 });
+
+                function getLine(organism, data, add_ipro = false) {
+                    if (!data.accession) {
+                        return "";
+                    }
+                    
+                    let family = Array.isArray(data.family_desc) ? data.family_desc.join("; ") : "";
+                    if (!family) {
+                        family = "none";
+                    }
+
+                    let ipro = "";
+                    if (add_ipro && Array.isArray(data.ipro_family)) {
+                        ipro = data.ipro_family.filter(item => item !== "none").join("; ");
+                        if (ipro) {
+                            ipro = "; InterPro=" + ipro;
+                        }
+                    }
+
+                    let line = [
+                        organism,
+                        data.accession,
+                        Math.round(data.start / 3),
+                        Math.round(data.stop / 3),
+                        data.seq_len,
+                        data.direction === "complement" ? "-" : "+",
+                        family + ipro,
+                        "",
+                        "",
+                        ""
+                    ].join("\t") + "\n";
+
+                    return line;
+                }
             });
 
             function showAlertMsg() {

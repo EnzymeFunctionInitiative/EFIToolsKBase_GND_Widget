@@ -345,7 +345,7 @@ class GND:
       if isinstance(idx, tuple):
         idx = idx[0]
       # if it's a uniref_id, we have to translate from member_index to cluster_index
-      if self.uniref_id != "":
+      if self.uniref_id != "" and self.id_type != "uniprot":
         idx = self.fetch_data(f"SELECT cluster_index FROM {self.UNIREF_INDEX} WHERE member_index = ?", (idx, ))[0][0]
       
       elem = {}
