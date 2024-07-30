@@ -1,4 +1,5 @@
-import sys
+import os
+import csv
 from widget.lib.widget_base import WidgetBase
 import sqlite3
 import json
@@ -17,7 +18,7 @@ def db_connection(db_path):
     conn.close()
 
 class GND:
-  def __init__(self, db: str, query_range: str, scale_factor: float, window: int, query: Optional[str], uniref_id: str, id_type: Any):
+  def __init__(self, db: str, query_range: str, scale_factor: float, window: int, query: Optional[str], uniref_id: str, id_type: Any, log_file: str):
     self.db = db
     self.output = {
       "message": "",
@@ -33,9 +34,8 @@ class GND:
     self.id_type = id_type
 
     self.query_cache = {}
-    self.total_queries = 0
-    self.indexed_queries = 0
-    self.query_types = defaultdict(int)
+    self.log_file = log_file
+    self._ensure_log_file()
 
     self.set_uniref_table_names()
 
@@ -56,30 +56,42 @@ class GND:
     self.output["error"] = True
     self.output["eod"] = True
 
-  def analyze_plan(self, plan):
-    uses_index = any('USING INDEX' in str(row) for row in plan)
-    self.total_queries += 1
-    if uses_index:
-      self.indexed_queries += 1
-    
-    for row in plan:
-      if 'SCAN TABLE' in str(row):
-        self.query_types['TABLE SCAN'] += 1
-      elif 'USING INDEX' in str(row):
-        self.query_types['INDEX SCAN'] += 1
-      elif 'SEARCH TABLE' in str(row):
-        self.query_types['TABLE SEARCH'] += 1
+  def _ensure_log_file(self):
+    with open(self.log_file, 'w', newline='') as f:
+      csv.writer(f).writerow(['Timestamp', 'Query', 'Params', 'Time', 'Rows Returned', 'Rows Scanned', 'Scan Ratio', 'Index Used'])
 
-  def print_stats(self):
-    print(f"\nQuery Statistics:")
-    print(f"Total queries: {self.total_queries}")
-    print(f"Queries using index: {self.indexed_queries}")
-    print(f"Percentage of queries using index: {self.indexed_queries/self.total_queries*100:.2f}%")
-    print("\nQuery Types:")
-    for query_type, count in self.query_types.items():
-      print(f"  {query_type}: {count} ({count/self.total_queries*100:.2f}%)")
+  def log_query(self, query, params, exec_time, rows_returned, rows_scanned, index_used):
+    scan_ratio = rows_scanned / rows_returned if rows_returned > 0 else float('inf')
+    with open(self.log_file, 'a', newline='') as f:
+      csv.writer(f).writerow([
+        time.strftime("%Y-%m-%d %H:%M:%S"),
+        query,
+        str(params),
+        f"{exec_time:.4f}",
+        rows_returned,
+        rows_scanned,
+        f"{scan_ratio:.2f}",
+        index_used or 'None'
+      ])
+
+  def _extract_info_from_plan(self, plan):
+    index_used = None
+    rows_scanned = 0
+    for row in plan:
+      if 'USING INDEX' in str(row):
+        index_used = str(row).split('USING INDEX')[-1].split()[0]
+      elif 'SCAN TABLE' in str(row):
+        index_used = "No index used (table scan)"
+      if 'SCAN' in str(row):
+        parts = str(row).split()
+        for i, part in enumerate(parts):
+          if part == '~':
+            rows_scanned = int(parts[i+1])
+            break
+    return index_used, rows_scanned
 
   def fetch_data(self, query: str, params: Optional[Tuple] = None) -> List[Tuple]:
+    start_time = time.time()
     cache_key = hashlib.md5((query + str(params)).encode()).hexdigest()
     
     if cache_key in self.query_cache:
@@ -88,20 +100,30 @@ class GND:
     with db_connection(self.db) as conn:
       cursor = conn.cursor()
       
-      # explain_query = f"EXPLAIN QUERY PLAN {query}"
-      # if params:
-      #   cursor.execute(explain_query, params)
-      # else:
-      #   cursor.execute(explain_query)
-      # plan = cursor.fetchall()
-      # self.analyze_plan(plan)
+      # Get query plan
+      if params:
+        param_placeholders = ', '.join('?' * len(params))
+        safe_query = query.replace('?', param_placeholders).format(*params)
+      else:
+        safe_query = query
       
+      try:
+        cursor.execute("EXPLAIN QUERY PLAN " + safe_query)
+        plan = cursor.fetchall()
+        index_used, rows_scanned = self._extract_info_from_plan(plan)
+      except sqlite3.Error:
+        index_used, rows_scanned = "Unable to determine", 0
+      
+      # Execute actual query
       if params:
         cursor.execute(query, params)
       else:
         cursor.execute(query)
       result = cursor.fetchall()
+
+      execution_time = time.time() - start_time
       self.query_cache[cache_key] = result
+      self.log_query(query, params, execution_time, len(result), rows_scanned, index_used)
       return result
 
   def check_table_exists(self, table_name: str) -> bool: 
@@ -457,11 +479,11 @@ class Widget(WidgetBase):
     uniref_id = self.get_param("uniref-id") if self.has_param("uniref-id") else ""
     id_type = self.get_param("id-type") if self.has_param("id-type") else ""
     if self.has_param('query'):
-        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'), uniref_id=uniref_id, id_type=id_type)
+        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range="", scale_factor=7.5, window=int(self.get_param('window')), query=self.get_param('query'), uniref_id=uniref_id, id_type=id_type, log_file="query_metrics.csv")
         json_data = my_gnd.generate_json()
         return json_data
     elif self.has_param('range'):
-        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None, uniref_id=uniref_id, id_type=id_type)
+        my_gnd = GND(db=self.get_param(id_query) + ".sqlite", query_range=self.get_param('range'), scale_factor=float(self.get_param('scale-factor')), window=int(self.get_param('window')), query=None, uniref_id=uniref_id, id_type=id_type, log_file="query_metrics.csv")
         json_data = my_gnd.generate_json()
         return json_data
     return super().render()
