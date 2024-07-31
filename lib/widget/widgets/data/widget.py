@@ -102,13 +102,10 @@ class GND:
       
       # Get query plan
       if params:
-        param_placeholders = ', '.join('?' * len(params))
-        safe_query = query.replace('?', param_placeholders).format(*params)
+        cursor.execute("EXPLAIN QUERY PLAN " + query, params)
       else:
-        safe_query = query
-      
+        cursor.execute("EXPLAIN QUERY PLAN " + query)
       try:
-        cursor.execute("EXPLAIN QUERY PLAN " + safe_query)
         plan = cursor.fetchall()
         index_used, rows_scanned = self._extract_info_from_plan(plan)
       except sqlite3.Error:
@@ -161,11 +158,11 @@ class GND:
     # where cluster_num = QUERY of the cluster_index table, uniref90_cluster_index 
     # if that table exists, otherwise cluster_index
     if self.uniref_id == "":
-      start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ?", (self.query, ))[0][0]
-      end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ?", (self.query, ))[0][0]
+      start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ? LIMIT 1", (self.query, ))[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ? LIMIT 1", (self.query, ))[0][0]
     else:
-      start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_RANGE} WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
-      end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_RANGE} WHERE uniref_id = ?", (self.uniref_id, ))[0][0]
+      start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_RANGE} WHERE uniref_id = ? LIMIT 1", (self.uniref_id, ))[0][0]
+      end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_RANGE} WHERE uniref_id = ? LIMIT 1", (self.uniref_id, ))[0][0]
 
     max_index = end_index - start_index
     # total diagram number, so max_index + 1, since it's zero-indexed
@@ -173,9 +170,9 @@ class GND:
     # assumes it starts at 0 and ends at max_index
     index_range = [[start_index, end_index]]
     # get the minimum value of the rel_start column in neighbors
-    min_bp = self.fetch_data("SELECT MIN(rel_start) FROM neighbors")[0][0]
+    min_bp = self.fetch_data("SELECT MIN(rel_start) FROM neighbors LIMIT 1")[0][0]
     # get the maximum value of the rel_stop column in neighbors
-    max_bp = self.fetch_data("SELECT MAX(rel_stop) FROM neighbors")[0][0]
+    max_bp = self.fetch_data("SELECT MAX(rel_stop) FROM neighbors LIMIT 1")[0][0]
     # total width for the legend
     legend_scale = max_bp - min_bp
     # get the maximum difference between rel_stop and rel_start in attributes
@@ -302,12 +299,10 @@ class GND:
   
   def get_neighbors(self, n: int, idx: int) -> List[Dict[str, Union[str, int, List[str], float]]]:
     neighbors = []
-    query = "SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '" + str(idx + 1) + "'"
-    query += " ORDER BY num"
+    query = "SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num"
     
-    rows = self.fetch_data(query)
+    rows = self.fetch_data(query, (idx + 1, n - self.window, n + self.window))
     for row in rows:
-      if row[2] < n - self.window or row[2] > n + self.window: continue
       neighbor = {}
       family_values = self.get_family_values(row[3], row[4], row[14], row[15])
 
@@ -358,14 +353,11 @@ class GND:
     if not self.is_direct_job():
       # start_index = self.fetch_data(f"SELECT start_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
       # end_index = self.fetch_data(f"SELECT end_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
-      indices = self.fetch_data(f"SELECT cluster_index FROM {self.UNIREF_RANGE} WHERE uniref_index BETWEEN ? AND ?", (start_index, end_index))
+      indices = [index[0] for index in self.fetch_data(f"SELECT cluster_index FROM {self.UNIREF_RANGE} WHERE uniref_index BETWEEN ? AND ?", (start_index, end_index))]
       # start_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[0], ))[0][0]
       # end_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[1], ))[0][0]
     # assumes that cluster index is zero-indexed and serves as the index for every attributes table
     for idx in indices:
-      # if it is not a direct job, we have to do a little extra parsing
-      if isinstance(idx, tuple):
-        idx = idx[0]
       # if it's a uniref_id, we have to translate from member_index to cluster_index
       if self.uniref_id != "" and self.id_type != "uniprot":
         idx = self.fetch_data(f"SELECT cluster_index FROM {self.UNIREF_INDEX} WHERE member_index = ?", (idx, ))[0][0]

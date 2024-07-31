@@ -1,85 +1,23 @@
 Timestamp,Query,Params,Time,Rows Returned,Rows Scanned,Scan Ratio,Index Used
-2024-07-30 19:53:16,SELECT name FROM sqlite_master WHERE type='table' AND name=?,"('metadata',)",0.0165,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT type FROM metadata,None,0.0009,1,0,0.00,No index used (table scan)
-2024-07-30 19:53:16,SELECT cluster_index FROM uniref50_range WHERE uniref_index BETWEEN ? AND ?,"(5530, 5537)",0.0023,8,0,0.00,Unable to determine
-2024-07-30 19:53:16,"
+2024-07-31 17:28:53,SELECT name FROM sqlite_master WHERE type='table' AND name=?,"('metadata',)",0.0009,1,0,0.00,No index used (table scan)
+2024-07-31 17:28:53,SELECT type FROM metadata,None,0.0008,1,0,0.00,No index used (table scan)
+2024-07-31 17:28:53,SELECT cluster_index FROM uniref90_range WHERE uniref_index BETWEEN ? AND ?,"(450, 451)",0.0017,2,0,0.00,uniref90_range_table_index
+2024-07-31 17:28:53,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(81542,)",0.0011,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,PRAGMA table_info(attributes),None,0.0008,28,0,0.00,None
-2024-07-30 19:53:16,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(81542,)",0.0009,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(81542,)",0.0007,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '81543' ORDER BY num",None,0.0020,40,0,0.00,neighbors_ac_id_index
-2024-07-30 19:53:16,"
+    ","(1506,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-07-31 17:28:53,PRAGMA table_info(attributes),None,0.0006,27,0,0.00,None
+2024-07-31 17:28:53,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(1506,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-07-31 17:28:53,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(1507, 637, 677)",0.0009,38,0,0.00,neighbors_ac_id_index
+2024-07-31 17:28:53,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(81527,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(81527,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(81527,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '81528' ORDER BY num",None,0.0007,4,0,0.00,neighbors_ac_id_index
-2024-07-30 19:53:16,"
-    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
-          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
-          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
-    FROM attributes 
-    WHERE cluster_index = ?
-    ","(81541,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(81541,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(81541,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '81542' ORDER BY num",None,0.0008,40,0,0.00,neighbors_ac_id_index
-2024-07-30 19:53:16,"
-    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
-          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
-          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
-    FROM attributes 
-    WHERE cluster_index = ?
-    ","(81546,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(81546,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(81546,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '81547' ORDER BY num",None,0.0008,40,0,0.00,neighbors_ac_id_index
-2024-07-30 19:53:16,"
-    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
-          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
-          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
-    FROM attributes 
-    WHERE cluster_index = ?
-    ","(81534,)",0.0007,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(81534,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(81534,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '81535' ORDER BY num",None,0.0009,40,0,0.00,neighbors_ac_id_index
-2024-07-30 19:53:16,"
-    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
-          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
-          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
-    FROM attributes 
-    WHERE cluster_index = ?
-    ","(81523,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(81523,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(81523,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '81524' ORDER BY num",None,0.0007,22,0,0.00,neighbors_ac_id_index
-2024-07-30 19:53:16,"
-    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
-          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
-          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
-    FROM attributes 
-    WHERE cluster_index = ?
-    ","(81531,)",0.0006,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(81531,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(81531,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '81532' ORDER BY num",None,0.0006,7,0,0.00,neighbors_ac_id_index
-2024-07-30 19:53:16,"
-    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
-          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
-          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
-    FROM attributes 
-    WHERE cluster_index = ?
-    ","(81535,)",0.0008,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(81535,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(81535,)",0.0005,1,0,0.00,Unable to determine
-2024-07-30 19:53:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = '81536' ORDER BY num",None,0.0007,23,0,0.00,neighbors_ac_id_index
+    ","(1508,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-07-31 17:28:53,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(1508,)",0.0005,1,0,0.00,attributes_cl_index_index
+2024-07-31 17:28:53,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(1509, 101, 141)",0.0008,40,0,0.00,neighbors_ac_id_index
