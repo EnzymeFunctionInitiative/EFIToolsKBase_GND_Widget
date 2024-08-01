@@ -365,6 +365,7 @@
                     var numDiagramsFilteredId = "#diagram-filter-count-container";
                     var superfamilySupport = {{ is_superfamily_job }};
                     var uniRefUiIds = {};
+                    var query = 1;
                     uniRefUiIds.uniref50Cb = "uniref50-cb";
                     uniRefUiIds.uniref50Btn = "uniref50-btn";
                     uniRefUiIds.uniprotCb = "uniprot-cb";
@@ -379,7 +380,7 @@
                     gndVars.setPageSize(200);
                     gndVars.setUrlPath("{{ widget_asset_url.split('widgets/')[0] + 'widgets/data' }}");
                     gndVars.setAuthString("{{ id_key_query_string }}");
-                    gndVars.setWindow({{ nb_size }});
+                    gndVars.setWindow("{{ nb_size }}");
                     if (superfamilySupport)
                         gndVars.setSuperfamilySupport(true);
 
@@ -387,7 +388,7 @@
                     var gndRouter = new GndMessageRouter();
                     var gndHttp = new GndHttp(gndRouter);
                     var popupIds = new GndInfoPopupIds();
-                    var bigscape = new BigScape({{ gnn_id }}, "{{ gnn_key }}", "", "");
+                    var bigscape = new BigScape("{{ gnn_id }}", "{{ gnn_key }}", "", "");
                     var uniRefSupport = new UniRef(false, "");
                     
                     var gndDb = new GndDb(gndColor);
@@ -418,7 +419,7 @@
                     ui.registerProgressBar("#progress-bar");
                     ui.registerSearchBtn("#advanced-search-cluster-button", "#advanced-search-input", "#start-info", "#advanced-search-panel");
                     ui.registerUniRefControl("#advanced-search-use-uniref-container", "display-id-type", uniRefUiIds);
-                    if ({{is_direct_job}} || {{is_realtime_job}}) {
+                    if ({{ is_direct_job }} || {{ is_realtime_job }}) {
                         ui.registerSearchResetToInitialBtn("#advanced-search-reset-button", "#advanced-search-input");
                     } else {
                         ui.registerSearchClearBtn("#advanced-search-reset-button", "#advanced-search-input");
@@ -488,51 +489,52 @@
                     URL.revokeObjectURL(url);
                 });
 
-                $("#export-gene-graphics-button").click(function(e) {
+                $("#export-gene-graphics-button").click(async function(e) {
                     e.preventDefault();
+                    "{{ widget_asset_url.split('widgets/')[0] + 'widgets/data' }}"
+                    try {
+                        const data = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?{{ id_key_query_string }}&window={{ nb_size }}&query=' + query + '&stats=1');
+                        const stats = await data.json();
+                        indexRange = stats["stats"]["index_range"];
 
-                    // Fetch data from the endpoint
-                    fetch('http://localhost:5100/widgets/data?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&scale-factor=7.5&range=40-59&id-type=uniprot')
-                        .then(response => response.json())
-                        .then(data => {
-                            // Generate the TSV content
-                            var output = "Genome\tID\tStart\tStop\tSize (nt)\tStrand\tFunction\tFC\tSS\tSet\n";
+                        // Second fetch
+                        const response2 = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?{{ id_key_query_string }}&window={{ nb_size }}&scale-factor=7.5&range=' + indexRange[0][0] + '-' + indexRange[0][1]);
+                        const data2 = await response2.json();
 
-                            data.data.forEach(function(row) {
-                                var A = row.attributes;
-                                var org = A.organism;
-                                var num = A.num;
-                                var queryProcessed = false;
+                        // Generate the TSV content
+                        let output = "Genome\tID\tStart\tStop\tSize (nt)\tStrand\tFunction\tFC\tSS\tSet\n";
 
-                                row.neighbors.forEach(function(N) {
-                                    if (N.num > num && !queryProcessed) {
-                                        queryProcessed = true;
-                                        output += getLine(org, A, false);  // Set to true if you want to include InterPro data
-                                    }
-                                    output += getLine(org, N, false);  // Set to true if you want to include InterPro data
-                                });
+                        data2.data.forEach(function(row) {
+                            const A = row.attributes;
+                            const org = A.organism;
+                            const num = A.num;
+                            let queryProcessed = false;
+
+                            row.neighbors.forEach(function(N) {
+                                if (N.num > num && !queryProcessed) {
+                                    queryProcessed = true;
+                                    output += getLine(org, A, false);
+                                }
+                                output += getLine(org, N, false);
                             });
+                        });
 
-                            // Create a Blob with the TSV content
-                            var blob = new Blob([output], {type: "text/tab-separated-values;charset=utf-8"});
+                        // Create and trigger download
+                        const blob = new Blob([output], {type: "text/tab-separated-values;charset=utf-8"});
+                        const url = URL.createObjectURL(blob);
+                        const downloadLink = document.createElement("a");
+                        downloadLink.href = url;
+                        downloadLink.download = "gene_graphics.tsv";
 
-                            // Create a downloadable URL
-                            var url = URL.createObjectURL(blob);
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
 
-                            // Create a temporary anchor element for downloading
-                            var downloadLink = document.createElement("a");
-                            downloadLink.href = url;
-                            downloadLink.download = "gene_graphics.tsv";
+                        URL.revokeObjectURL(url);
 
-                            // Trigger the download
-                            document.body.appendChild(downloadLink);
-                            downloadLink.click();
-                            document.body.removeChild(downloadLink);
-
-                            // Clean up the URL object
-                            URL.revokeObjectURL(url);
-                        })
-                        .catch(error => console.error('Error:', error));
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
                 });
 
                 function getLine(organism, data, add_ipro = false) {
@@ -548,9 +550,9 @@
                     let ipro = "";
                     if (add_ipro && Array.isArray(data.ipro_family)) {
                         ipro = data.ipro_family.filter(item => item !== "none").join("; ");
-                        if (ipro) {
-                            ipro = "; InterPro=" + ipro;
-                        }
+                        // if (ipro) {
+                        //     ipro = "; InterPro=" + ipro;
+                        // }
                     }
 
                     let line = [

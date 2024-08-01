@@ -24,6 +24,7 @@ class GndParams:
 		self.query_cache = {}
 		
 		# from the query string
+		self.P["param_type"] = self.id_param
 		self.P["gnn_id"] = params.get(self.id_param)
 		self.P["gnn_key"] = params.get("key", "")
 		self.P["gnn_name"] = "job #" + self.P["gnn_id"]
