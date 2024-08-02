@@ -491,17 +491,14 @@
 
                 $("#export-gene-graphics-button").click(async function(e) {
                     e.preventDefault();
-                    "{{ widget_asset_url.split('widgets/')[0] + 'widgets/data' }}"
                     try {
                         const data = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?{{ id_key_query_string }}&window={{ nb_size }}&query=' + query + '&stats=1');
                         const stats = await data.json();
                         indexRange = stats["stats"]["index_range"];
 
-                        // Second fetch
                         const response2 = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?{{ id_key_query_string }}&window={{ nb_size }}&scale-factor=7.5&range=' + indexRange[0][0] + '-' + indexRange[0][1]);
                         const data2 = await response2.json();
 
-                        // Generate the TSV content
                         let output = "Genome\tID\tStart\tStop\tSize (nt)\tStrand\tFunction\tFC\tSS\tSet\n";
 
                         data2.data.forEach(function(row) {
@@ -513,18 +510,17 @@
                             row.neighbors.forEach(function(N) {
                                 if (N.num > num && !queryProcessed) {
                                     queryProcessed = true;
-                                    output += getLine(org, A, false);
+                                    output += getLine(org, A);
                                 }
-                                output += getLine(org, N, false);
+                                output += getLine(org, N);
                             });
                         });
 
-                        // Create and trigger download
                         const blob = new Blob([output], {type: "text/tab-separated-values;charset=utf-8"});
                         const url = URL.createObjectURL(blob);
                         const downloadLink = document.createElement("a");
                         downloadLink.href = url;
-                        downloadLink.download = "gene_graphics.tsv";
+                        downloadLink.download = "{{ gene_graphics_file_name }}_gene_graphics.tsv";
 
                         document.body.appendChild(downloadLink);
                         downloadLink.click();
@@ -537,7 +533,7 @@
                     }
                 });
 
-                function getLine(organism, data, add_ipro = false) {
+                function getLine(organism, data) {
                     if (!data.accession) {
                         return "";
                     }
@@ -548,11 +544,11 @@
                     }
 
                     let ipro = "";
-                    if (add_ipro && Array.isArray(data.ipro_family)) {
+                    if (Array.isArray(data.ipro_family)) {
                         ipro = data.ipro_family.filter(item => item !== "none").join("; ");
-                        // if (ipro) {
-                        //     ipro = "; InterPro=" + ipro;
-                        // }
+                        if (ipro) {
+                            ipro = "; InterPro=" + ipro;
+                        }
                     }
 
                     let line = [

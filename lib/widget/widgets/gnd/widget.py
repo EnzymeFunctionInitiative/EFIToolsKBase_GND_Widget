@@ -54,8 +54,9 @@ class GndParams:
 		self.P["unmatched_ids"] = []
 		self.P["unmatched_id_modal_text"] = ""
 
-		# uniprot ids
-
+		# get gene graphics file name
+		self.P["gene_graphics_file_name"] = ""
+		
 		# blast sequence
 		self.P["blast_seq"] = ""
 
@@ -122,6 +123,7 @@ class GndParams:
 	def retrieve_info(self) -> Dict[str, Any]:
 		name = self.fetch_data("SELECT name FROM metadata")[0][0]
 		if name != None and name != "":
+			self.P["gene_graphics_file_name"] = name
 			if self.id_param == "upload-id":
 				self.P["gnn_name"] = "filename <i>" + name + "</i>"
 			elif self.id_param == "direct-id":
