@@ -544,7 +544,8 @@
                     }
 
                     let ipro = "";
-                    if (Array.isArray(data.ipro_family)) {
+                    // added additional condition to check if the family_desc is not "Query without family"
+                    if (Array.isArray(data.ipro_family) && Array.isArray(data.family_desc) && data.family_desc != "Query without family") {
                         ipro = data.ipro_family.filter(item => item !== "none").join("; ");
                         if (ipro) {
                             ipro = "; InterPro=" + ipro;
