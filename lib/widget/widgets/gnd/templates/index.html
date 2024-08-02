@@ -489,6 +489,12 @@
                     URL.revokeObjectURL(url);
                 });
 
+                $("#advanced-search-cluster-button").click(function() {
+                    query = $("#advanced-search-input").val();
+                    console.log("Query updated:", query);  // For debugging
+                    // Here you can add code to use the query variable in your request
+                });
+
                 $("#export-gene-graphics-button").click(async function(e) {
                     e.preventDefault();
                     try {
@@ -545,7 +551,7 @@
 
                     let ipro = "";
                     // added additional condition to check if the family_desc is not "Query without family"
-                    if (Array.isArray(data.ipro_family) && Array.isArray(data.family_desc) && data.family_desc != "Query without family") {
+                    if (Array.isArray(data.ipro_family)) {
                         ipro = data.ipro_family.filter(item => item !== "none").join("; ");
                         if (ipro) {
                             ipro = "; InterPro=" + ipro;
