@@ -89,7 +89,7 @@
                     <input type="radio" name="display-id-type" id="uniref90-cb" autocomplete="off" value="90"> UniRef90
                 </label>
                 <label class="btn btn-default active" id="uniprot-btn">
-                    <input type="radio" name="display-id-type" id="uniprot-cb" autocomplete="off" value="uniprot" checked> UniProt
+                    <input type="radio" name="display-id-type" id="uniprot-cb" autocomplete="off" value="uniprot"> UniProt
                 </label>
             </div>
             <!--
@@ -368,6 +368,8 @@
                     var query = 1;
                     var windowSize = "{{ nb_size }}";
                     var idKeyQueryString = "{{ id_key_query_string }}";
+                    var idTypeButtonClicked = false;
+                    diagramsDisplayed = 0;
                     
                     uniRefUiIds.uniref50Cb = "uniref50-cb";
                     uniRefUiIds.uniref50Btn = "uniref50-btn";
@@ -501,6 +503,7 @@
                 });
 
                 $('input[name="display-id-type"]').change(function() {
+                    idTypeButtonClicked = true;
                     console.log("in the check for button click, $(this).val() is", $(this).val())
                     if (idKeyQueryString.includes("id-type")) {
                         idKeyQueryString = idKeyQueryString.replace(/id-type=[^&]+/, "id-type=" + $(this).val());
@@ -510,15 +513,17 @@
                     console.log("Changed idKeyQueryString to", idKeyQueryString);
                 });
 
-                var selectedIdType = $('input[name="display-id-type"]:checked').val();
-                if (selectedIdType) {
-                    if (idKeyQueryString.includes("id-type")) {
-                        idKeyQueryString = idKeyQueryString.replace(/is-type=[^&]+/, "id-type=" + selectedIdType);
-                    } else {
-                        idKeyQueryString += "&id-type=" + selectedIdType;
-                    }
-                    console.log("Changed idKeyQueryString to", idKeyQueryString);
-                }
+                var diagramCountSpan = document.getElementById('diagrams-displayed-count');
+                var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            diagramsDisplayed = parseInt(diagramCountSpan.textContent, 10);
+                            console.log("Diagrams displayed updated:", diagramsDisplayed);
+                        }
+                    });
+                });
+
+                observer.observe(diagramCountSpan, { childList: true });
 
                 $("#export-gene-graphics-button").click(async function(e) {
                     e.preventDefault();
@@ -527,7 +532,20 @@
                         const data = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?' + idKeyQueryString + '&window=' + windowSize + '&query=' + query + '&stats=1');
                         const stats = await data.json();
                         indexRange = stats["stats"]["index_range"];
+                        hasUniref = stats["stats"]["has_uniref"]
+                        // limit it to only the diagrams displayed on the screen
+                        if (indexRange[0][1] - indexRange[0][0] > diagramsDisplayed) {
+                            indexRange[0][1] = indexRange[0][0] + diagramsDisplayed;
+                        }
 
+                        // use has_uniref to set the id_type, unless the button has been clicked, in which case it should already be set correctly
+                        if (!idTypeButtonClicked && (hasUniref == 90 || hasUniref == 50)) {
+                            if (idKeyQueryString.includes("id-type")) {
+                                idKeyQueryString = idKeyQueryString.replace(/id-type=[^&]+/, "id-type=" + hasUniref);
+                            } else {
+                                idKeyQueryString += "&id-type=" + hasUniref;
+                            }
+                        }
                         const response2 = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?' + idKeyQueryString + '&window=' + windowSize + '&scale-factor=7.5&range=' + indexRange[0][0] + '-' + indexRange[0][1]);
                         const data2 = await response2.json();
 
