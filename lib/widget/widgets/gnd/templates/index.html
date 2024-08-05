@@ -355,7 +355,7 @@
                 $("#filter-anno-toggle").prop("checked", false);
                 $("#filter-anno-toggle").addClass("disabled");
                 //$("#advanced-search-use-uniref").prop("checked", false);
-                $("#window-size").val({{ nb_size }});
+                $("#window-size").val("{{ nb_size }}");
                 if (checkBrowserSupport()) {
 
                     var svgCanvasId = "#arrow-canvas";
@@ -366,6 +366,9 @@
                     var superfamilySupport = {{ is_superfamily_job }};
                     var uniRefUiIds = {};
                     var query = 1;
+                    var windowSize = "{{ nb_size }}";
+                    var idKeyQueryString = "{{ id_key_query_string }}";
+                    
                     uniRefUiIds.uniref50Cb = "uniref50-cb";
                     uniRefUiIds.uniref50Btn = "uniref50-btn";
                     uniRefUiIds.uniprotCb = "uniprot-cb";
@@ -491,18 +494,41 @@
 
                 $("#advanced-search-cluster-button").click(function() {
                     query = $("#advanced-search-input").val();
-                    console.log("Query updated:", query);  // For debugging
-                    // Here you can add code to use the query variable in your request
                 });
+
+                $("#window-size").change(function() {
+                    windowSize = $(this).val();
+                });
+
+                $('input[name="display-id-type"]').change(function() {
+                    console.log("in the check for button click, $(this).val() is", $(this).val())
+                    if (idKeyQueryString.includes("id-type")) {
+                        idKeyQueryString = idKeyQueryString.replace(/id-type=[^&]+/, "id-type=" + $(this).val());
+                    } else {
+                        idKeyQueryString += "&id-type=" + $(this).val();
+                    }
+                    console.log("Changed idKeyQueryString to", idKeyQueryString);
+                });
+
+                var selectedIdType = $('input[name="display-id-type"]:checked').val();
+                if (selectedIdType) {
+                    if (idKeyQueryString.includes("id-type")) {
+                        idKeyQueryString = idKeyQueryString.replace(/is-type=[^&]+/, "id-type=" + selectedIdType);
+                    } else {
+                        idKeyQueryString += "&id-type=" + selectedIdType;
+                    }
+                    console.log("Changed idKeyQueryString to", idKeyQueryString);
+                }
 
                 $("#export-gene-graphics-button").click(async function(e) {
                     e.preventDefault();
                     try {
-                        const data = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?{{ id_key_query_string }}&window={{ nb_size }}&query=' + query + '&stats=1');
+                        console.log("idKeyQueryString is now", idKeyQueryString);
+                        const data = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?' + idKeyQueryString + '&window=' + windowSize + '&query=' + query + '&stats=1');
                         const stats = await data.json();
                         indexRange = stats["stats"]["index_range"];
 
-                        const response2 = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?{{ id_key_query_string }}&window={{ nb_size }}&scale-factor=7.5&range=' + indexRange[0][0] + '-' + indexRange[0][1]);
+                        const response2 = await fetch('{{ widget_asset_url.split("widgets/")[0] + "widgets/data" }}?' + idKeyQueryString + '&window=' + windowSize + '&scale-factor=7.5&range=' + indexRange[0][0] + '-' + indexRange[0][1]);
                         const data2 = await response2.json();
 
                         let output = "Genome\tID\tStart\tStop\tSize (nt)\tStrand\tFunction\tFC\tSS\tSet\n";
