@@ -1,0 +1,42 @@
+{% if uniref_id == "" %}
+    <i class="fas fa-search" aria-hidden="true"> </i> <span class="sidebar-header">Search</span>
+    <div>
+        <!-- start uniref -->
+        <div id="advanced-search-use-uniref-container" style="display: none; margin-bottom: 10px;">
+            <div style="font-size:0.9em">Show ID Type: <i class="fas fa-question-circle" data-placement="bottom" data-toggle="tooltip" title="UniRef options decrease the number of nodes that are displayed by grouping sequences together at a 50% and/or 90% sequence percent identity, depending on job options."></i></div>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-default" id="uniref50-btn">
+                    <input type="radio" name="display-id-type" id="uniref50-cb" autocomplete="off" value="50"> UniRef50
+                </label>
+                <label class="btn btn-default" id="uniref90-btn">
+                    <input type="radio" name="display-id-type" id="uniref90-cb" autocomplete="off" value="90"> UniRef90
+                </label>
+                <label class="btn btn-default active" id="uniprot-btn">
+                    <input type="radio" name="display-id-type" id="uniprot-cb" autocomplete="off" value="uniprot"> UniProt
+                </label>
+            </div>
+        </div> <!-- enduniref -->
+
+        <div id="advanced-search-input-container" style="display:none">
+            <div style="font-size:0.9em">
+                {% if is_direct_job == "true" or is_realtime_job == "true" %}
+                    Input specific UniProt IDs to display only those diagrams.
+                {% else %}
+                    Input multiple clusters and/or individual UniProt IDs.
+                {% endif %}
+            </div>
+            <textarea id="advanced-search-input"></textarea>
+            <div>
+                <button type="button" class="btn btn-light" id="advanced-search-cluster-button">Query</button>
+                <button type="button" class="btn btn-light" id="advanced-search-reset-button">
+                    {% if is_direct_job == "true" and is_realtime_job == "false" %}
+                        Reset View
+                    {% else %}
+                        Clear
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+        
+    </div>
+{% endif %}
