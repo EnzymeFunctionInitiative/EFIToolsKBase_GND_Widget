@@ -49,110 +49,17 @@
         <div id="wrapper" class="">
             <div id="sidebar-wrapper">
                 <ul class="sidebar-nav">
-                    <li id="advanced-search-panel" style="background-color: red;">
+                    <li id="advanced-search-panel">
                         {% include 'partials/search-input.html' %}
                     </li>
-                    <li style="background-color: green;">
+                    <li>
                         {% include 'partials/filter-input.html' %}
                     </li>
                     <li>
-                                                <div id="window-tools" class="initial-hidden">
-                            <i class="fas fa-window-maximize" aria-hidden="true"></i> <span class="sidebar-header">Genome Window</span>
-                            <div>
-                                <select id="window-size" class="light zoom-btn">
-                                    {% for i in range(1, max_nb_size + 1) %}
-                                        <option value="{{ i }}" {% if nb_size == i %}selected{% endif %}>{{ i }}</option>
-                                    {% endfor %}
-                                </select> genes
-                                <button type="button" class="btn btn-default tool-button auto zoom-btn" id="refresh-window">
-                                    <i class="fas fa-refresh" aria-hidden="true"></i> Apply
-                                </button>
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-default tool-button zoom-btn" id="scale-zoom-out-large" style="font-size: 1.2em" title="0.25x">
-                                    <i class="fas fa-search-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-default tool-button zoom-btn" id="scale-zoom-out-small" title="0.888x">
-                                    <i class="fas fa-search-minus"></i>
-                                </button>
-                                Zoom
-                                <button type="button" class="btn btn-default tool-button zoom-btn" id="scale-zoom-in-small" title="1.125x">
-                                    <i class="fas fa-search-plus" title="1.125x"></i>
-                                </button>
-                                <button type="button" class="btn btn-default tool-button zoom-btn" id="scale-zoom-in-large" style="font-size: 1.2em" title="4x">
-                                    <i class="fas fa-search-plus"></i>
-                                </button>
-                                <!--Scale factor: 1000 AA=<input type="text" width="5" name="scale-factor" id="scale-factor" value="15" style="line-height: 1.5em; padding: 2px; width: 35px; color: black" title="press enter to apply" />%-->
-                            </div>
-                        </div>
+                        {% include 'partials/window-tools.html' %}
                     </li>
                     <li>
-                                                <div id="page-tools" class="initial-hidden">
-                            <i class="fas fa-wrench" aria-hidden="true"></i> <span class="sidebar-header">Tools</span>
-                            <div class="btn-group" style="width: 100%; margin-button: 30px">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    Export Data <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#" id="export-gene-graphics-button"><i class="far fa-image" aria-hidden="true"></i> Export to Gene Graphics</a></li>
-                                    {% if is_example == "false" and supports_download == "true" and is_uploaded_diagram == "false" %}
-                                        <li><a id="download-data" href="download_files.php?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&type=data-file"
-                                            title="Download the data to upload it for future analysis using this tool.">
-                                            <i class="fas fa-download" aria-hidden="true"></i> Download Data as SQLite
-                                        </a></li>
-                                    {% endif %}
-                                </ul>
-                            </div>
-
-                            <div>
-                                <button type="button" class="btn btn-default tool-button" id="save-canvas-button">
-                                    <i class="far fa-image" aria-hidden="true"></i> Save as SVG
-                                </button>
-                            </div>
-                            <div>
-                                <a href="" target="_blank">
-                                    <button type="button" class="btn btn-default tool-button">
-                                        <i class="fas fa-window-restore" aria-hidden="true"></i> New Window
-                                    </button>
-                                </a>
-                            </div>
-                            {% if is_direct_job == "true" %}
-                                <div>
-                                    <button type="button" class="btn btn-default tool-button" id="show-uniprot-ids">
-                                        <i class="far fa-thumbs-up" aria-hidden="true"></i> {% if is_blast == "false" %}Recognized {% endif %}UniProt IDs                                    
-                                    </button>
-                                </div>
-                            {% endif %}
-                            {% if has_unmatched_ids == "true" %}
-                                <div>
-                                    <button type="button" class="btn btn-default tool-button" id="show-unmatched-ids">
-                                        <i class="fas fa-thumbs-down" aria-hidden="true"></i> Unmatched IDs
-                                    </button>
-                                </div>
-                            {% endif %}
-                            {% if is_blast == "true" %}
-                                <div>
-                                    <button type="button" class="btn btn-default tool-button" id="show-blast-sequence">
-                                    <i class="fas fa-file-alt" aria-hidden="true"></i> Input Sequence
-                                    </button>
-                                </div>
-                            {% endif %}
-
-                            <div>
-                                <a href="https://efi.igb.illinois.edu//efi-gnt/diagram_tutorial.pdf">
-                                <button type="button" class="btn btn-default tool-button" id="show-blast-sequence">
-                                <i class="fas fa-file-alt" aria-hidden="true"></i> Tutorial
-                                </button>
-                                </a>
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-default tool-button" id="help-modal-button"><i class="fas fa-question"></i> Quick Tips</button>
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-default tool-button" id="info-modal-button"><i class="fas fa-info"></i> Licenses</button>
-                            </div>
-                        </div>
-
+                        {% include 'partials/gnd-tools.html' %}
                     </li>
                 </ul>
             </div>
@@ -199,7 +106,7 @@
             </table>
         </footer>
 
-        <div id="alert-msg">Unable to show requested diagrams.</div> 
+        <div id="alert-msg">Unable to show reqeuested diagrams.</div> 
 
 
         <!-- Bootstrap core JavaScript
@@ -383,7 +290,7 @@
 
                 $('input[name="display-id-type"]').change(function() {
                     idTypeButtonClicked = true;
-                    console.log("in the check for button click, $(this).val() is", $(this).val());
+                    console.log("in the check for button click, $(this).val() is", $(this).val())
                     if (idKeyQueryString.includes("id-type")) {
                         idKeyQueryString = idKeyQueryString.replace(/id-type=[^&]+/, "id-type=" + $(this).val());
                     } else {
@@ -741,4 +648,3 @@
         </div>
     </body>
 </html>
-

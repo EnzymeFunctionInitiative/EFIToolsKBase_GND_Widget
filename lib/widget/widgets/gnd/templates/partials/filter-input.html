@@ -1,44 +1,48 @@
 <div class="initial-hidden">
-  <i class="fas fa-filter" aria-hidden="true"> </i> <span class="sidebar-header">Filtering</span>
-  <div class="filter-cb-div" id="filter-container-tabs">
-      <div class="tooltip-text" id="filter-anno-toggle-text">
-          <input id="filter-anno-toggle" type="checkbox" />
-          <label for="filter-anno-toggle"><span>Show SwissProt Annotations</span></label>
-      </div>
-  </div>
+	<i class="fas fa-filter" aria-hidden="true"> </i> <span class="sidebar-header">Filtering</span>
+	<div class="filter-cb-div" id="filter-container-tabs">
+		<div class="tooltip-text" id="filter-anno-toggle-text">
+			<input id="filter-anno-toggle" type="checkbox" />
+			<label for="filter-anno-toggle"><span>Show SwissProt Annotations</span></label>
+		</div>
+	</div>
 
-  <div class="panel-group" id="filter-accordion">
-      <div class="filter-cb-div filter-cb-toggle-div" id="filter-container-toggle">
-          <input id="filter-cb-toggle" type="checkbox" />
-          <label for="filter-cb-toggle"><span id="filter-cb-toggle-text">Show Family Numbers</span></label>
-      </div>
-<div class="panel panel-default">
-<div class="panel-heading">
-<h4 class="panel-title" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-accordion-panel-pfam">
-<span class="accordion-arrow fas fa-caret-right" aria-hidden="true"></span> <a class="accordion-toggle">PFam Families</a>
-</h4>
-</div>
-<div id="filter-accordion-panel-pfam" class="panel-collapse collapse">
-<div class="filter-panel panel-body">
-  <div style="width:100%;height:12em;" class="filter-container" id="filter-container-pfam">
-  </div>
-</div>
-</div>
-</div>    <div class="panel panel-default">
-<div class="panel-heading">
-<h4 class="panel-title" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-accordion-panel-interpro">
-<span class="accordion-arrow fas fa-caret-right" aria-hidden="true"></span> <a class="accordion-toggle">InterPro Families</a>
-</h4>
-</div>
-<div id="filter-accordion-panel-interpro" class="panel-collapse collapse">
-<div class="filter-panel panel-body">
-  <div style="width:100%;height:12em;" class="filter-container" id="filter-container-interpro">
-  </div>
-</div>
-</div>
-</div>                            </div>
-  <div><input type="text" id="filter-search" /></div>
-  <button type="button" id="filter-clear"><i class="fas fa-times" aria-hidden="true"></i> Clear Filter</button>
-  <div class="active-filter-list" id="active-filter-list">
-  </div>
+	<div class="panel-group" id="filter-accordion">
+		<div class="filter-cb-div filter-cb-toggle-div" id="filter-container-toggle">
+			<input id="filter-cb-toggle" type="checkbox" />
+			<label for="filter-cb-toggle"><span id="filter-cb-toggle-text">Show Family Numbers</span></label>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-accordion-panel-pfam">
+					<span class="accordion-arrow fas fa-caret-right" aria-hidden="true"></span> <a class="accordion-toggle">PFam Families</a>
+				</h4>
+			</div>
+			<div id="filter-accordion-panel-pfam" class="panel-collapse collapse">
+				<div class="filter-panel panel-body">
+					<div style="width:100%;height:12em;" class="filter-container" id="filter-container-pfam"></div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title" data-toggle="collapse" data-parent="#filter-accordion" data-target="#filter-accordion-panel-interpro">
+					<span class="accordion-arrow fas fa-caret-right" aria-hidden="true"></span> <a class="accordion-toggle">InterPro Families</a>
+				</h4>
+			</div>
+			<div id="filter-accordion-panel-interpro" class="panel-collapse collapse">
+				<div class="filter-panel panel-body">
+					<div style="width:100%;height:12em;" class="filter-container" id="filter-container-interpro"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div>
+		<input type="text" id="filter-search" />
+	</div>
+	<button type="button" id="filter-clear">
+		<i class="fas fa-times" aria-hidden="true"></i> Clear Filter
+	</button>
+	<div class="active-filter-list" id="active-filter-list"></div>
 </div>
