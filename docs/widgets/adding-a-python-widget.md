@@ -201,7 +201,7 @@ GitPython                2.1.11
 idna                     2.7      
 imagesize                1.1.0    
 Jinja2                   2.10     
-JSONRPCBase              0.2.1    
+JSONRPCBase              0.2.2    
 MarkupSafe               1.0      
 mkl-fft                  1.0.4    
 mkl-random               1.0.1    
