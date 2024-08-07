@@ -1,0 +1,62 @@
+<div id="uniprot-ids-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">UniProt IDs Identified</h4>
+          </div>
+          <div class="modal-body" id="uniprot-ids">
+              <table border="0">
+                  <thead>
+                      <th width="120px">UniProt ID</th>
+                      <th>Query ID</th>
+                  </thead>
+                  <tbody>
+                      {{ uniprot_ids_modal_text }}
+                  </tbody>
+              </table>
+          </div>
+          <div class="modal-footer">
+              {% set uniprot_ids_download_text_js = uniprot_ids_download_text | replace("\n", "\\n") %}
+              <button type="button" class="btn btn-default" id="save-uniprot-ids-btn" onclick="downloadUniProtIds('{{ uniprot_ids_download_text_js }}', '{{ gnn_download_name }}')">Save to File</button>
+                                          <!--                            onclick='saveDataFn("30093__UniProt_IDs.txt", "uniprot-ids")'>Save to File</button>-->
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<div id="unmatched-ids-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">IDs Detected Without UniProt Match</h4>
+          </div>
+          <div class="modal-body" id="unmatched-ids">{{ unmatched_id_modal_text }}</div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" id="save-unmatched-ids-btn" onclick="downloadUnmatchedIds({{ unmatched_ids }}, '{{ gnn_download_name }}')">Save to File</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+{% if is_blast == "true" %}
+  {<div id="blast-sequence-modal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title">Sequence Used in BLAST</h4>
+              </div>
+              <div class="modal-body" id="blast-sequence">
+                  {{ blast_seq }}
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" id="save-blast-seq-btn" onclick="downloadBlastSeq('{{ blast_seq }}', '{{ gnn_download_name }}')">Save to File</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+  </div>}
+{% endif %}
