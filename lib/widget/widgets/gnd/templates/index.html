@@ -158,7 +158,7 @@
                     var gndHttp = new GndHttp(gndRouter);
                     var popupIds = new GndInfoPopupIds();
                     var bigscape = new BigScape("{{ gnn_id }}", "{{ gnn_key }}", "", "");
-                    var uniRefSupport = new UniRef(false, "");
+                    var uniRefSupport = new UniRef("{{ id_type if id_type != '' else 'false' }}", "{{ uniref_id }}");
                     
                     var gndDb = new GndDb(gndColor);
                     var gndFilter = new GndFilter(gndRouter, gndDb);

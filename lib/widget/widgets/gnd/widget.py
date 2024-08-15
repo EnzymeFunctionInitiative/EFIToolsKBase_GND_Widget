@@ -183,7 +183,6 @@ class GndParams:
 		if self.P["uniref_id"] != "": self.P["id_key_query_string"] += "&uniref-id=" + self.P['uniref_id']
 		if self.P["id_type"] != "": self.P["id_key_query_string"] += "&id-type=" + self.P['id_type']
 
-		print("ID KEY QUERY: ", self.P["id_key_query_string"])
 		# print(json.dumps(self.P, indent=2))
 		return self.P
 

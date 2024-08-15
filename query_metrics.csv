@@ -1,148 +1,204 @@
 Timestamp,Query,Params,Time,Rows Returned,Rows Scanned,Scan Ratio,Index Used
-2024-08-07 23:30:16,SELECT name FROM sqlite_master WHERE type='table' AND name=?,"('metadata',)",0.0006,1,0,0.00,No index used (table scan)
-2024-08-07 23:30:16,SELECT type FROM metadata,None,0.0008,1,0,0.00,No index used (table scan)
-2024-08-07 23:30:16,"
+2024-08-15 23:00:35,SELECT name FROM sqlite_master WHERE type='table' AND name=?,"('metadata',)",0.0030,1,0,0.00,No index used (table scan)
+2024-08-15 23:00:35,SELECT type FROM metadata,None,0.0034,1,0,0.00,No index used (table scan)
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(180,)",0.0006,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,PRAGMA table_info(attributes),None,0.0004,26,0,0.00,None
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(181, 3, 23)",0.0007,20,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(180,)",0.0019,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,PRAGMA table_info(attributes),None,0.0015,28,0,0.00,None
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(180,)",0.0014,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(180,)",0.0012,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(181, 19, 59)",0.0028,38,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(181,)",0.0005,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(182, 6, 26)",0.0006,14,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(181,)",0.0013,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(181,)",0.0011,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(181,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(182, 246, 286)",0.0012,40,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(182,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(183, 4, 24)",0.0007,14,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(182,)",0.0010,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(182,)",0.0009,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(182,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(183, 144, 184)",0.0011,40,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(183,)",0.0005,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(184, -5, 15)",0.0013,5,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(183,)",0.0011,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(183,)",0.0009,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(183,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(184, -9, 31)",0.0012,30,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(184,)",0.0005,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(185, -5, 15)",0.0006,14,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(184,)",0.0011,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(184,)",0.0011,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(184,)",0.0010,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(185, 3, 43)",0.0014,40,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(185,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(186, 819, 839)",0.0006,20,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(185,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(185,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(185,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(186, 20, 60)",0.0011,22,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(186,)",0.0007,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(187, 307, 327)",0.0006,20,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(186,)",0.0010,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(186,)",0.0010,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(186,)",0.0008,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(187, -17, 23)",0.0008,22,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(187,)",0.0005,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(188, -8, 12)",0.0005,8,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(187,)",0.0009,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(187,)",0.0009,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(187,)",0.0008,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(188, -7, 33)",0.0012,32,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(188,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(189, 57, 77)",0.0006,20,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(188,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(188,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(188,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(189, -5, 35)",0.0009,32,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(189,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(190, -9, 11)",0.0005,5,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(189,)",0.0008,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(189,)",0.0008,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(189,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(190, -15, 25)",0.0009,24,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(190,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(191, 10, 30)",0.0006,18,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(190,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(190,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(190,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(191, 8, 48)",0.0009,26,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(191,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(192, 555, 575)",0.0006,20,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(191,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(191,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(191,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(192, -3, 37)",0.0009,35,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(192,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(193, 994, 1014)",0.0006,20,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(192,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(192,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(192,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(193, -3, 37)",0.0008,35,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(193,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(194, 491, 511)",0.0006,20,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(193,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(193,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(193,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(194, -4, 36)",0.0010,34,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(194,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(195, 2953, 2973)",0.0005,20,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(194,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(194,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(194,)",0.0005,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(195, 8, 48)",0.0008,40,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(195,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(196, -1, 19)",0.0005,14,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(195,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(195,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(195,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(196, 2, 42)",0.0008,40,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(196,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(197, 1, 21)",0.0005,19,0,0.00,neighbors_ac_id_index
-2024-08-07 23:30:16,"
+    ","(196,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(196,)",0.0009,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(196,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(197, 14, 54)",0.0009,40,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
     SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
           strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
           evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
     FROM attributes 
     WHERE cluster_index = ?
-    ","(197,)",0.0004,1,0,0.00,attributes_cl_index_index
-2024-08-07 23:30:16,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(198, 2, 22)",0.0005,20,0,0.00,neighbors_ac_id_index
+    ","(197,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(197,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(197,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(198, -1, 39)",0.0009,38,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
+    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
+          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
+          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
+    FROM attributes 
+    WHERE cluster_index = ?
+    ","(198,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(198,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(198,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(199, 12, 52)",0.0008,28,0,0.00,neighbors_ac_id_index
+2024-08-15 23:00:35,"
+    SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, 
+          strain, direction, type, seq_len, organism, taxon_id, anno_status, desc, 
+          evalue, family_desc, ipro_family_desc, color, sort_order, is_bound, cluster_num 
+    FROM attributes 
+    WHERE cluster_index = ?
+    ","(199,)",0.0008,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref90_size FROM attributes WHERE cluster_index = ?,"(199,)",0.0007,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,SELECT uniref50_size FROM attributes WHERE cluster_index = ?,"(199,)",0.0006,1,0,0.00,attributes_cl_index_index
+2024-08-15 23:00:35,"SELECT accession, id, num, family, ipro_family, start, stop, rel_start, rel_stop, direction, type, seq_len, anno_status, desc, family_desc, ipro_family_desc, color FROM neighbors WHERE gene_key = ? AND num BETWEEN ? AND ? ORDER BY num","(200, 10, 50)",0.0009,27,0,0.00,neighbors_ac_id_index

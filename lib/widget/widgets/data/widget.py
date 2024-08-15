@@ -255,7 +255,6 @@ class GND:
     """
     result = self.fetch_data(query, (idx,))[0]
     family_values = self.get_family_values(result[3], result[4], result[18], result[19])
-
     attributes = {
       "accession": result[0],
       "id": result[1],
@@ -270,7 +269,7 @@ class GND:
       "direction": result[10],
       "type": result[11],
       "seq_len": result[12],
-      "organism": result[13].rstrip('.'),
+      "organism": result[13].rstrip('.') if result[13] else "",
       "taxon_id": result[14],
       "anno_status": result[15],
       "desc": result[16],
@@ -291,9 +290,9 @@ class GND:
       attributes["evalue"] = result[17]
     if result[23] != None and self.is_gnn_job():
       attributes["cluster_num"] = result[23]
-    if self.check_column_exists("uniref90_size", "attributes") and self.uniref_id == "":
+    if self.check_column_exists("uniref90_size", "attributes"):
       attributes["uniref90_size"] = self.fetch_data(f"SELECT uniref90_size FROM attributes WHERE cluster_index = ?", (idx, ))[0][0]
-    if self.check_column_exists("uniref50_size", "attributes") and self.uniref_id == "":
+    if self.check_column_exists("uniref50_size", "attributes"):
       attributes["uniref50_size"] = self.fetch_data(f"SELECT uniref50_size FROM attributes WHERE cluster_index = ?", (idx, ))[0][0]
     return attributes
   
@@ -345,6 +344,9 @@ class GND:
       return attr["uniref50_size"] == 0 and attr["uniref90_size"] == 0
     return False
   
+  def lowest_nesting_level(self) -> bool:
+    return self.id_type == "uniprot" or (self.id_type == "90" and self.uniref_id != "")
+  
   def retrieve_and_process(self) -> None:
     self.output["data"] = []
     start_index = int(self.query_range.split("-")[0])
@@ -365,11 +367,13 @@ class GND:
       elem = {}
       elem["attributes"] = self.get_attributes(idx)
       elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
-      if self.is_cluster_child(elem["attributes"]) and self.id_type != "uniprot":
-        continue
+      # if it is a cluster child (uniref_sizes of 0) and we are not at the lowest nesting level, dont display this diagram
+      # TODO: if there was a way we could skip this attribute earlier, we could save some time processing these jobs
+      if self.is_cluster_child(elem["attributes"]) and not self.lowest_nesting_level(): continue
       self.output["data"].append(elem)
-    if self.id_type != "uniprot":
-      if self.id_type == "90":
+
+    if not self.lowest_nesting_level():
+      if self.id_type == "90" or (self.id_type == "50" and self.uniref_id != ""):
         self.output["data"].sort(key=lambda x: x["attributes"].get("uniref90_size", 0), reverse=True)
       else:
         self.output["data"].sort(key=lambda x: x["attributes"].get("uniref50_size", 0), reverse=True)
