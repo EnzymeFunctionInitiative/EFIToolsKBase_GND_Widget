@@ -152,11 +152,7 @@ class GND:
   
   def get_stats(self) -> None:
     stats = {}
-    
-    # gets the only value in the end_index column of the cluster_index table
-    # cluster: the difference between end_index and start_index in the row 
-    # where cluster_num = QUERY of the cluster_index table, uniref90_cluster_index 
-    # if that table exists, otherwise cluster_index
+
     if self.uniref_id == "":
       start_index = self.fetch_data(f"SELECT start_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ? LIMIT 1", (self.query, ))[0][0]
       end_index = self.fetch_data(f"SELECT end_index FROM {self.UNIREF_CLUSTER_INDEX} WHERE cluster_num = ? LIMIT 1", (self.query, ))[0][0]
@@ -169,6 +165,7 @@ class GND:
     num_checked = max_index + 1
     # assumes it starts at 0 and ends at max_index
     index_range = [[start_index, end_index]]
+    # TODO: min and max bp are actually calculated in a different, much more complicated way, do if there is time
     # get the minimum value of the rel_start column in neighbors
     min_bp = self.fetch_data("SELECT MIN(rel_start) FROM neighbors LIMIT 1")[0][0]
     # get the maximum value of the rel_stop column in neighbors
@@ -332,6 +329,7 @@ class GND:
       }
       neighbors.append(neighbor)
 
+    # TODO: confirm that this line is not needed, then remove it
     neighbors.sort(key=lambda x: x["num"])
     return neighbors
 

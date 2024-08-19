@@ -84,7 +84,7 @@
 
         {% include 'partials/footer.html' %}
 
-        <div id="alert-msg">Unable to show reqeuested diagrams.</div> 
+        <div id="alert-msg">Unable to show requested diagrams.</div> 
 
 
         <!-- Bootstrap core JavaScript
@@ -117,7 +117,6 @@
             $(document).ready(function() {
                 $("#filter-cb-toggle").prop("checked", false);
                 $("#filter-anno-toggle").prop("checked", false);
-                $("#filter-anno-toggle").addClass("disabled");
                 //$("#advanced-search-use-uniref").prop("checked", false);
                 $("#window-size").val("{{ nb_size }}");
                 if (checkBrowserSupport()) {
@@ -129,6 +128,8 @@
                     var numDiagramsFilteredId = "#diagram-filter-count-container";
                     var superfamilySupport = {{ is_superfamily_job }};
                     var uniRefUiIds = {};
+
+                    // variables for tracking the state on the frontend, and using them in the get_gene_graphics function
                     var query = 1;
                     var windowSize = "{{ nb_size }}";
                     var idKeyQueryString = "{{ id_key_query_string }}";
@@ -249,7 +250,7 @@
 
                     var downloadLink = document.createElement("a");
                     downloadLink.href = url;
-                    downloadLink.download = "diagram.svg";
+                    downloadLink.download = "{{ gnn_id }}.svg";
 
                     document.body.appendChild(downloadLink);
                     downloadLink.click();

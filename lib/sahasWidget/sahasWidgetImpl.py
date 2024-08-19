@@ -30,7 +30,7 @@ class sahasWidget:
     ######################################### noqa
     VERSION = "0.3.0"
     GIT_URL = ""
-    GIT_COMMIT_HASH = "b954b955f7bcd6789eddf7ed1c66692db0516a7c"
+    GIT_COMMIT_HASH = "25e2af90becb7200ebf41dadcb86b15d2a43eb2e"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER

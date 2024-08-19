@@ -54,7 +54,6 @@ class GndParams:
 		self.P["unmatched_ids"] = []
 		self.P["unmatched_id_modal_text"] = ""
 
-		# get gene graphics file name
 		self.P["gene_graphics_file_name"] = ""
 		
 		# blast sequence
@@ -158,7 +157,6 @@ class GndParams:
 		if self.P["gnn_type"] != "GNN":
 			self.P["uniprot_ids"] = self.get_uniprot_ids()
 
-			
 			download_text = "UniProt ID\tQuery ID\n"
 			modal_text = ""
 			for upId, otherId in self.P["uniprot_ids"].items():
@@ -173,12 +171,9 @@ class GndParams:
 		self.P["blast_seq"] = self.fetch_data("SELECT sequence FROM metadata")[0][0]
 		cooccurrence = self.fetch_data("SELECT cooccurrence FROM metadata")[0][0]
 		if cooccurrence != None:
-			# this is just a theory to account for why nb_size is not the same as it is in the metadata table
-			# self.P["nb_size"] /= int(cooccurrence * 10)
 			self.P["cooccurrence"] = int(cooccurrence * 100)
 		
-		# manually add the uniref-id to the query string since it isn't there already
-		# TODO: add the id-type field to the query string once we start processing uniref50 and uniref90 separately
+		# manually adding id type and uniref id to the query string
 		self.P["id_key_query_string"] = f"{self.id_param}={self.P['gnn_id']}&key={self.P['gnn_key']}"
 		if self.P["uniref_id"] != "": self.P["id_key_query_string"] += "&uniref-id=" + self.P['uniref_id']
 		if self.P["id_type"] != "": self.P["id_key_query_string"] += "&id-type=" + self.P['id_type']
