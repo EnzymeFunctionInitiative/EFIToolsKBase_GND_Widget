@@ -122,6 +122,9 @@ class GndParams:
 	def retrieve_info(self) -> Dict[str, Any]:
 		name = self.fetch_data("SELECT name FROM metadata")[0][0]
 		if name != None and name != "":
+			# this is for readability in the UI for long names, we should still be able to see job details in as many views as possible
+			name = name[:70] + "<br>" + name[70:] if len(name) > 70 else name
+			print("NAMEEEEE" + name)
 			self.P["gene_graphics_file_name"] = name
 			if self.id_param == "upload-id":
 				self.P["gnn_name"] = "filename <i>" + name + "</i>"
