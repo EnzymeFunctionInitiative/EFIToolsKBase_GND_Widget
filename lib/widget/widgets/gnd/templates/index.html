@@ -23,11 +23,10 @@
         <script src="js/arrows.js" type="application/javascript"></script>
 -->
         <style>
-            #header-logo { float: left; width: 175px; }
+            #header-logo { float: left; }
             #header-body { margin-left: 185px; overflow: hidden; height: 70px; }
             #header-body-title  { vertical-align: middle; line-height: normal; padding-left: 15px; }
             /*#header-body-title  { float: left; width: calc(100%-200px); display: inline-block; vertical-align: middle; line-height: normal; width: calc(100%-370px); }*/
-            #header-job-info { width: 195px; }
             #header-job-info div { line-height: normal; }
             @font-face {
                 font-family:'FontAwesome';
@@ -259,6 +258,39 @@
                     URL.revokeObjectURL(url);
                 });
 
+                $("#save-canvas-as-png-button").click(function(e) {
+                    var canvas = $("#arrow-canvas")[0];
+
+                    var legendSvg = filterUi.getLegendSvg();
+
+                    var combinedSvg = `
+                        <svg xmlns="http://www.w3.org/2000/svg">
+                            ${canvas.outerHTML}
+                            ${legendSvg}
+                        </svg>
+                    `;
+
+                    var img = new Image();
+                    img.onload = function() {
+                        var tmpCanvas = document.createElement("canvas");
+                        tmpCanvas.width = img.width;
+                        tmpCanvas.height = img.height;
+                        var ctx = tmpCanvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0);
+
+                        var pngDataUrl = tmpCanvas.toDataURL("image/png");
+
+                        var downloadLink = document.createElement("a");
+                        downloadLink.href = pngDataUrl;
+                        downloadLink.download = "{{ gnn_id }}.png";
+
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    };
+                    img.src = "data:image/svg+xml," + encodeURIComponent(combinedSvg);
+                });
+
                 $("#advanced-search-cluster-button").click(function() {
                     query = $("#advanced-search-input").val();
                 });
@@ -347,7 +379,7 @@
                         console.error('Error:', error);
                     }
                 });
-
+                
                 function getLine(organism, data) {
                     if (!data.accession) {
                         return "";
@@ -382,6 +414,18 @@
 
                     return line;
                 }
+
+                $("#download-data").click(function(e) {
+                    e.preventDefault();
+
+                    var url = "{{ gnn_id }}.sqlite";
+                    var downloadLink = document.createElement("a");
+                    downloadLink.href = url;
+                    downloadLink.download = "{{ gnn_id }}.sqlite";
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
             });
 
             function showAlertMsg() {

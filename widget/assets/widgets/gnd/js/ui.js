@@ -15,8 +15,10 @@ function checkBrowserSupport() {
 
     if (supported) {
         $("#save-canvas-button").show();
+        $("#save-canvas-as-png-button").show();
     } else {
         $("#save-canvas-button").hide();
+        $("#save-canvas-as-png-button").hide();
     }
     return supported;
 }

@@ -7,7 +7,7 @@
 		<ul class="dropdown-menu">
 			<li><a href="#" id="export-gene-graphics-button"><i class="far fa-image" aria-hidden="true"></i> Export to Gene Graphics</a></li>
 			{% if is_example == "false" and supports_download == "true" and is_uploaded_diagram == "false" %}
-				<li><a id="download-data" href="download_files.php?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&type=data-file"
+				<li><a id="download-data" href="#"
 					title="Download the data to upload it for future analysis using this tool.">
 					<i class="fas fa-download" aria-hidden="true"></i> Download Data as SQLite
 				</a></li>
@@ -21,7 +21,7 @@
 		</button>
 	</div>
 	<div>
-		<button type="button" class="btn btn-default tool-button" id="save-canvas-button">
+		<button type="button" class="btn btn-default tool-button" id="save-canvas-as-png-button">
 			<i class="fas fa-file-image" aria-hidden="true"></i> Save as PNG
 		</button>
 	</div>
