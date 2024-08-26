@@ -7825,7 +7825,7 @@
         },
         {
           "name": "DataFileUtil",
-          "ver": "0.3.0-release",
+          "ver": "0.3.1-release",
           "code_url": "https://github.com/kbaseapps/DataFileUtil",
           "commit": "df0bb6568008983c1daf6966cf8cebf54f0a0d80"
         },
@@ -7837,7 +7837,7 @@
         },
         {
           "name": "WsLargeDataIO",
-          "ver": "0.3.0-beta",
+          "ver": "0.3.1-beta",
           "code_url": "https://github.com/kbaseapps/WsLargeDataIO",
           "commit": "8d76a294f3877be83cce9b51daebe541acc107d3"
         }

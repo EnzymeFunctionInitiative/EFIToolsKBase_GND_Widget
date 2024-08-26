@@ -28,7 +28,7 @@ class sahasWidget:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.3.0"
+    VERSION = "0.3.1"
     GIT_URL = ""
     GIT_COMMIT_HASH = "25e2af90becb7200ebf41dadcb86b15d2a43eb2e"
 

@@ -27,12 +27,6 @@
                 src:url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/webfonts/fa-solid-900.ttf") format("truetype");
             }
         </style>
-
-        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-            <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-            <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
     </head>
 
     <body>
@@ -203,7 +197,7 @@
                         });
                     }
                     
-                    if ({{ is_blast }}) {
+                    if ("{{ is_blast }}") {
                         $("#show-blast-sequence").click(function(e) { $("#blast-sequence-modal").modal("show"); });
                     }
                     
@@ -212,7 +206,7 @@
                     alert("Your browser is not supported.");
                 }
                 
-                if ({{ has_unmatched_ids }}) {
+                if ("{{ has_unmatched_ids }}") {
                     $("#show-unmatched-ids").click(function(e) {
                         $("#unmatched-ids-modal").modal("show");
                     });
@@ -240,21 +234,17 @@
                     `;
                     var blob = new Blob([combinedSvg], {type: "image/svg+xml;charset=utf-8"});
                     var url = URL.createObjectURL(blob);
-
                     var downloadLink = document.createElement("a");
                     downloadLink.href = url;
                     downloadLink.download = "{{ gnn_id }}.svg";
-
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
                     document.body.removeChild(downloadLink);
-
                     URL.revokeObjectURL(url);
                 });
 
                 $("#save-canvas-as-png-button").click(function(e) {
                     var canvas = $("#arrow-canvas")[0];
-
                     var legendSvg = filterUi.getLegendSvg();
 
                     var combinedSvg = `
@@ -264,25 +254,31 @@
                         </svg>
                     `;
 
+                    var svgBlob = new Blob([combinedSvg], {type: 'image/svg+xml;charset=utf-8'});
                     var img = new Image();
+
                     img.onload = function() {
+                        var scale = 16;
                         var tmpCanvas = document.createElement("canvas");
-                        tmpCanvas.width = img.width;
-                        tmpCanvas.height = img.height;
+                        tmpCanvas.width = img.width * scale;
+                        tmpCanvas.height = img.height * scale;
                         var ctx = tmpCanvas.getContext("2d");
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.scale(scale, scale);
                         ctx.drawImage(img, 0, 0);
 
-                        var pngDataUrl = tmpCanvas.toDataURL("image/png");
-
-                        var downloadLink = document.createElement("a");
-                        downloadLink.href = pngDataUrl;
-                        downloadLink.download = "{{ gnn_id }}.png";
-
-                        document.body.appendChild(downloadLink);
-                        downloadLink.click();
-                        document.body.removeChild(downloadLink);
+                        tmpCanvas.toBlob(function(pngBlob) {
+                            var downloadLink = document.createElement("a");
+                            downloadLink.href = URL.createObjectURL(pngBlob);
+                            downloadLink.download = "{{ gnn_id }}.png";
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+                            URL.revokeObjectURL(downloadLink.href);
+                        }, 'image/png');
                     };
-                    img.src = "data:image/svg+xml," + encodeURIComponent(combinedSvg);
+                    img.src = URL.createObjectURL(svgBlob);
                 });
 
                 $("#advanced-search-cluster-button").click(function() {
@@ -385,7 +381,6 @@
                     }
 
                     let ipro = "";
-                    // added additional condition to check if the family_desc is not "Query without family"
                     if (Array.isArray(data.ipro_family)) {
                         ipro = data.ipro_family.filter(item => item !== "none").join("; ");
                         if (ipro) {
@@ -423,15 +418,9 @@
             });
 
             function showAlertMsg() {
-                // Get the snackbar DIV
                 var x = document.getElementById("alert-msg");
-            
-                // Add the "show" class to DIV
                 x.className = "show";
-            
-                // After 3 seconds, remove the show class from DIV
                 setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-
                 alert("Unable to retrieve the selected diagrams: probably because too many were selected.");
             }
 

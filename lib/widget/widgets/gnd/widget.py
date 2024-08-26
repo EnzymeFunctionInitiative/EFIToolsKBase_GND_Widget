@@ -92,6 +92,12 @@ class GndParams:
 		conn.close()
 		return "true" if result is not None else "false"
 
+	def check_has_unmatched_ids(self) -> str:
+		if self.check_table_exists("unmatched") == "false":
+			return "false"
+		num_tables = self.fetch_data("SELECT COUNT(*) FROM unmatched")[0][0]
+		return "true" if num_tables > 0 else "false"
+    
 	# copied over exactly from efi-web
 	def get_ids_from_accessions(self) -> List[str]:
 		ids = []
@@ -122,9 +128,8 @@ class GndParams:
 	def retrieve_info(self) -> Dict[str, Any]:
 		name = self.fetch_data("SELECT name FROM metadata")[0][0]
 		if name != None and name != "":
-			# this is for readability in the UI for long names, we should still be able to see job details in as many views as possible
+			# this is for readability in the UI for long names, different screen widths
 			name = name[:70] + "<br>" + name[70:] if len(name) > 70 else name
-			print("NAMEEEEE" + name)
 			self.P["gene_graphics_file_name"] = name
 			if self.id_param == "upload-id":
 				self.P["gnn_name"] = "filename <i>" + name + "</i>"
@@ -150,7 +155,7 @@ class GndParams:
 		else:
 			self.P["gnn_type"] = "GNN"
 
-		self.P["has_unmatched_ids"] = self.check_table_exists("unmatched")
+		self.P["has_unmatched_ids"] = self.check_has_unmatched_ids()
 		if self.P["has_unmatched_ids"] == "true":
 			column = self.fetch_data("SELECT id_list FROM unmatched")
 			for val in column:

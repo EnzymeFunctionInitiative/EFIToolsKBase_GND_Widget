@@ -7,7 +7,6 @@ import time
 from typing import List, Dict, Union, Tuple, Optional, Any
 from contextlib import contextmanager
 import hashlib
-from collections import defaultdict
 
 @contextmanager
 def db_connection(db_path):
@@ -328,9 +327,6 @@ class GND:
       "rel_width": 0
       }
       neighbors.append(neighbor)
-
-    # TODO: confirm that this line is not needed, then remove it
-    neighbors.sort(key=lambda x: x["num"])
     return neighbors
 
   def is_cluster_child(self, attr: Dict[str, Any]) -> bool:
@@ -350,15 +346,11 @@ class GND:
     start_index = int(self.query_range.split("-")[0])
     end_index = int(self.query_range.split("-")[1])
     indices = list(range(start_index, end_index + 1))
+    # if it is not a direct job, we have to translate from uniref_index to cluster_index using the uniref_range table
     if not self.is_direct_job():
-      # start_index = self.fetch_data(f"SELECT start_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
-      # end_index = self.fetch_data(f"SELECT end_index FROM cluster_index WHERE cluster_num = {self.get_cluster_num_from_query()}")[0][0]
       indices = [index[0] for index in self.fetch_data(f"SELECT cluster_index FROM {self.UNIREF_RANGE} WHERE uniref_index BETWEEN ? AND ?", (start_index, end_index))]
-      # start_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[0], ))[0][0]
-      # end_index = self.fetch_data(f"SELECT cluster_index FROM uniref90_range WHERE uniref_index = ?", (self.query_range.split("-")[1], ))[0][0]
-    # assumes that cluster index is zero-indexed and serves as the index for every attributes table
     for idx in indices:
-      # if it's a uniref_id, we have to translate from member_index to cluster_index
+      # if it's a uniref_id, we have to translate from member_index to cluster_index using the uniref_index table
       if self.uniref_id != "" and self.id_type != "uniprot":
         idx = self.fetch_data(f"SELECT cluster_index FROM {self.UNIREF_INDEX} WHERE member_index = ?", (idx, ))[0][0]
       
@@ -366,7 +358,6 @@ class GND:
       elem["attributes"] = self.get_attributes(idx)
       elem["neighbors"] = self.get_neighbors(elem["attributes"]['num'], idx)
       # if it is a cluster child (uniref_sizes of 0) and we are not at the lowest nesting level, dont display this diagram
-      # TODO: if there was a way we could skip this attribute earlier, we could save some time processing these jobs
       if self.is_cluster_child(elem["attributes"]) and not self.lowest_nesting_level(): continue
       self.output["data"].append(elem)
 

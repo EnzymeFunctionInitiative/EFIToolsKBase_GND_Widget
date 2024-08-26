@@ -4,7 +4,7 @@ module-description: A KBase module
 
 service-language: python
 
-module-version: 0.3.0
+module-version: 0.3.1
 
 owners: [sahas]
 
