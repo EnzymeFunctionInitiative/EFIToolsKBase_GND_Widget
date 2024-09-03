@@ -4,6 +4,7 @@ import sqlite3
 from typing import Dict, List, Any, Optional, Tuple, Union
 from contextlib import contextmanager
 import hashlib
+import os
 
 @contextmanager
 def db_connection(db_path):
@@ -208,6 +209,14 @@ class Widget(WidgetBase):
 		for param in possible_params:
 			if self.has_param(param):
 				return super().render()
+			
+		file_path = "/data/sample.txt"
+		if os.path.exists(file_path):
+			with open(file_path, "r") as file:
+				file_contents = file.read()
+		else:
+			file_contents = "file not found"
+
 		return """
 		Welcome to the base GND endpoint. Enter params to query specific database files.
 		<br>
@@ -218,4 +227,4 @@ class Widget(WidgetBase):
 			<li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
 			<li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
 		</ul>
-		""".encode("utf-8")
+		""".encode("utf-8") + file_contents.encode("utf-8")
