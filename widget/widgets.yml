@@ -1,37 +1,6 @@
 widgets:
-  # Default - built-in
-
   - name: assets
     type: assets
-
-  - name: devtool
-    type: python
-
-  - name: demos
-    type: python
-
-  - name: config
-    type: python
-
-    # Viewers
-
-  - name: media_viewer
-    type: static
-
-  - name: media_viewer_py
-    type: python
-    package: media_viewer
-    title: Media Viewer
-
-  - name: protein_structures_viewer
-    type: python
-
-  # Generic
-
-  - name: demo_genome_edit_classification_viewer
-    type: python
-
-  # GND Widgets
 
   - name: gnd
     type: python
