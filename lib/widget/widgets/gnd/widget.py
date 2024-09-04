@@ -210,10 +210,17 @@ class Widget(WidgetBase):
 			if self.has_param(param):
 				return super().render()
 			
-		file_path = "/data/sample.txt"
+		file_path = os.path.join("data", "sample.txt")
+		ls_output = "Contents of the data folder\n".join(os.listdir("data")) + "end of contents"
+
 		if os.path.exists(file_path):
-			with open(file_path, "r") as file:
-				file_contents = file.read()
+			try:
+				with open(file_path, "r") as file:
+					file_contents = file.read()
+			except PermissionError:
+				file_contents = "Error: Permission denied"
+			except FileNotFoundError:
+				file_contents = "Error: File not found"
 		else:
 			file_contents = "file not found"
 
@@ -227,4 +234,4 @@ class Widget(WidgetBase):
 			<li><a href="?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">?direct-id=30095&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
 			<li><a href="?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617">?gnn-id=7671&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617</a></li>
 		</ul>
-		""".encode("utf-8") + file_contents.encode("utf-8")
+		""".encode("utf-8") + file_contents.encode("utf-8") + ls_output.encode("utf-8")

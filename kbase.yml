@@ -4,11 +4,11 @@ module-description: A KBase module
 
 service-language: python
 
-module-version: 0.3.2
+module-version: 0.3.3
 
 owners: [sahas]
 
 service-config:
   dynamic-service: true
 
-data-version: 0.3.1
+data-version: 0.3.2
