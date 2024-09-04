@@ -11,4 +11,4 @@ owners: [sahas]
 service-config:
   dynamic-service: true
 
-data-version: 0.3
+data-version: 0.3.1
