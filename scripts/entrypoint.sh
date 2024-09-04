@@ -19,6 +19,8 @@ elif [ "${1}" = "init" ] ; then
   echo "Initialize module"
   cd /data
   curl -s http://example.com/sample.txt
+  echo "Contents of /data volume:"
+  ls -l /data
   touch __READY__
 elif [ "${1}" = "bash" ] ; then
   bash
