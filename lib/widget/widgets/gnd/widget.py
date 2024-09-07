@@ -210,8 +210,8 @@ class Widget(WidgetBase):
 			if self.has_param(param):
 				return super().render()
 			
-		file_path = os.path.join("/data", "sample.txt")
-		ls_output = "Contents of the data folder\n".join(os.listdir("/data")) + "end of contents"
+		file_path = os.path.join("data", "sample.txt")
+		ls_output = "Contents of the data folder\n".join(os.listdir("data")) + "end of contents"
 
 		if os.path.exists(file_path):
 			try:
