@@ -139,7 +139,12 @@ class GndParams:
 			else:
 				self.P["gnn_name"] = "GNN <i>" + name + "</i>"
 			self.P["gnn_download_name"] += name
-			self.P["window_title"] = "for GNN " + name + " (#" + self.P["gnn_id"] + ")" if self.id_param == "gnn-id" else "for " + name + " (#" + self.P["gnn_id"] + ")"
+			if self.id_param == "gnn-id":
+				self.P["window_title"] = "for GNN " + name + " (#" + self.P["gnn_id"] + ")"
+			elif self.id_param == "upload-id":
+				self.P["window_title"] = "for uploaded filename " + self.P["gnn_id"]
+			else:
+				"for " + name + " (#" + self.P["gnn_id"] + ")"
 		nb_size = self.fetch_data("SELECT neighborhood_size FROM metadata")[0][0]
 		if nb_size != None and nb_size != "":
 			self.P["nb_size"] = nb_size
