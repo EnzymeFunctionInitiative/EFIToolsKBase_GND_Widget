@@ -6,6 +6,13 @@ You will need to have the SDK installed to use this module. [Learn more about th
 
 You can also learn more about the apps implemented in this module from its [catalog page](https://narrative.kbase.us/#catalog/modules/sahasWidget) or its [spec file]($module_name.spec).
 
+# Code documentation
+
+Also in this repository is documentation on the widget classes implemented to handle the transformation of SQLite data to JSON, and pass information from the SQLite files to the frontend interface. There is also documentation on the JS functions implemented on the frontend for downloading GND specific files.
+
+- Data Widget documentation
+- GND Widget documentation
+- JS function documentation
 # Setup and test
 
 Add your KBase developer token to `test_local/test.cfg` and run the following:

@@ -1,13 +1,10 @@
-# Class Documentation
+# Data Widget Documentation
 
 ## Overview
+This widget is responsible for reading the requested data from a SQLite file corresponding to the GND and returning it as JSON according to several parameters. The function is called by visiting the /data endpoint and including the parameters in the query, upon which the JSON is rendered in HTML. The JSON is then passed to the frontend, where the JavaaScript uses its fields to construct the diagrams.
 
-This is a brief summary of what the class does.
-
-## Class Definition
-
-
-The `ClassName` class is defined as follows:
+## Constructor
+The `GND` class is defined as follows:
 ```python
 class ClassName:
     def __init__(self, arg1, arg2):
