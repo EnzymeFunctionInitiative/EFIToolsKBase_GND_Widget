@@ -3,27 +3,10 @@
 ## Overview
 This widget is responsible for reading the requested data from a SQLite file corresponding to the GND and returning it as JSON according to several parameters. The function is called by visiting the /data endpoint and including the parameters in the query, upon which the JSON is rendered in HTML. The JSON is then passed to the frontend, where the JavaaScript uses its fields to construct the diagrams.
 
-## Constructor
-The `GND` class is defined as follows:
-```python
-class ClassName:
-    def __init__(self, arg1, arg2):
-        # initialization code
-        pass
-
-    def method1(self, arg1, arg2):
-        # method 1 code
-        pass
-
-    def method2(self, arg1):
-        # method 2 code
-        pass
-```
-
 ## Methods
-
-
-#### method1(self, arg1, arg2)
+```python
+def __init__(self, db: str, query_range: str, scale_factor: float, window: int, query: Optional[str], uniref_id: str, id_type: Any, log_file: str):
+```
 
 * Description: This is a brief description of what the method does.
 * Parameters:
@@ -31,7 +14,9 @@ class ClassName:
     * `arg2`: A brief description of the second parameter.
 * Returns: A brief description of what the method returns.
 
-#### method2(self, arg1)
+```python
+def method2(self):
+```
 
 * Description: This is a brief description of what the method does.
 * Parameters:
