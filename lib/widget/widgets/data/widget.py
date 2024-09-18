@@ -427,16 +427,15 @@ class GND:
     self.compute_rel_coords()
 
   def generate_json(self) -> bytes:
-    # try:
-    if self.query_range == "":
-      self.get_stats()
-    else:
-      self.get_arrow_data()
-    # except Exception as e:
-    #   self.error_output(str(e))
+    try:
+      if self.query_range == "":
+        self.get_stats()
+      else:
+        self.get_arrow_data()
+    except Exception as e:
+      self.error_output(str(e))
     self.output["totaltime"] = time.time() - self.output["totaltime"]
     json_data = json.dumps(self.output).encode('utf-8')
-    # self.print_stats()
     return json_data
 
 class Widget(WidgetBase):
