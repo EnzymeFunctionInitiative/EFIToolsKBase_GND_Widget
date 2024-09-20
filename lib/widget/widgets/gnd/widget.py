@@ -85,13 +85,8 @@ class GndParams:
 			return result
 
 	def check_table_exists(self, table_name: str) -> str:
-		conn = sqlite3.connect(self.db)
-		cursor = conn.cursor()
-		cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
-		result = cursor.fetchone()
-		cursor.close()
-		conn.close()
-		return "true" if result is not None else "false"
+		result = self.fetch_data("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+		return "true" if result else "false"
 
 	def check_has_unmatched_ids(self) -> str:
 		if self.check_table_exists("unmatched") == "false":

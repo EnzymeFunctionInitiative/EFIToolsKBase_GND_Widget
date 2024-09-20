@@ -16,7 +16,7 @@ def __init__(self, db: str, query_range: str, scale_factor: float, window: int, 
   - `query_range`: Range of diagrams to query, set by the frontend and is usually 20 diagrams.
   - `scale_factor`: Specifies the level of zoom into the diagrams.
   - `window`: Window size for data retrieval. The number of neighbors on either side of each attribute
-  - `query`: Optional query string.
+  - `query`: Optional query string. Only applicable for the initial call that triggers `get_stats()`
   - `uniref_id`: UniRef ID for specific queries.
   - `id_type`: Type of ID being used, can be uniprot, 90, or 50.
   - `log_file`: Path to the log file for query metrics.
@@ -108,7 +108,7 @@ def check_column_exists(self, column, table):
 - **Parameters**:
   - `column`: Name of the column to check.
   - `table`: Name of the table to check in.
-- **Returns**: Boolean indicating whether the column exists in the table.
+- **Returns**: Boolean indicating whether the column exists in the given table.
 
 ```python
 def is_direct_job(self) -> bool:
@@ -126,7 +126,7 @@ def is_direct_job(self) -> bool:
 def is_gnn_job(self) -> bool:
 ```
 
-- **Description**: Determines if the current job is a GNN (Graph Neural Network) job.
+- **Description**: Determines if the current job is a GNN (Genome Neighborhood Network) job.
 - **Returns**: Boolean indicating whether the job is a GNN job.
 - **Notes**: 
   - Checks if the "metadata" table exists and its type is "gnn"
@@ -140,6 +140,7 @@ def get_cluster_num_from_query(self) -> int:
 - **Notes**: 
   - Splits the `query_range` into start and end indices
   - Queries the `UNIREF_CLUSTER_INDEX` table to find the matching cluster number
+  - Not being used in the most recent version
 
 ```python
 def get_stats(self) -> None:
@@ -148,6 +149,7 @@ def get_stats(self) -> None:
 - **Description**: Retrieves and sets statistical information about the data.
 - **Returns**: None
 - **Notes**: 
+  - This function is triggered by the initial call when a GND is requested, followed by any number of calls with a `query_range` parameter that get the actual diagrams
   - Calculates various statistics including index ranges, base pair ranges, and scale factors
   - Handles both UniRef and non-UniRef cases
   - Populates the `stats` field in the `output` dictionary with calculated values
@@ -181,10 +183,6 @@ def get_attributes(self, idx: int) -> Dict[str, Union[str, int, List[str], float
   - Handles special cases for GNN jobs and UniRef data
   - Includes additional checks for UniRef-specific columns
 
-# Data Widget Documentation
-
-## Methods
-
 ```python
 def get_neighbors(self, n: int, idx: int) -> List[Dict[str, Union[str, int, List[str], float]]]:
 ```
@@ -195,7 +193,8 @@ def get_neighbors(self, n: int, idx: int) -> List[Dict[str, Union[str, int, List
   - `idx`: Index for which to retrieve neighbors.
 - **Returns**: List of dictionaries containing neighbor information.
 - **Notes**: 
-  - Fetches data from the "neighbors" table.
+  - Fetches data from the "neighbors" table for each attribute.
+  - The number of neighbors we want to return depends on the window size around the central point `n`, which is given by the attribute
   - Processes family-related information using `get_family_values`.
   - Formats each neighbor's data into a dictionary.
 
@@ -210,6 +209,7 @@ def is_cluster_child(self, attr: Dict[str, Any]) -> bool:
 - **Notes**: 
   - Checks for UniRef90 and UniRef50 sizes.
   - Returns True if the relevant UniRef size is 0.
+  - Helps determine whether or not we should skip rendering a certain diagram in the highest level function
 
 ```python
 def lowest_nesting_level(self) -> bool:
@@ -229,6 +229,7 @@ def retrieve_and_process(self) -> None:
 - **Notes**: 
   - Handles different job types (direct, UniRef).
   - Retrieves attributes and neighbors for each index.
+  - Checks nesting level and uniref90, uniref50 sizes to determine if a diagram should be returned to the frontend
   - Sorts data based on UniRef sizes if not at the lowest nesting level.
   - Populates the `data` field in the `output` dictionary.
 
@@ -236,7 +237,7 @@ def retrieve_and_process(self) -> None:
 def compute_rel_coords(self) -> None:
 ```
 
-- **Description**: Computes relative coordinates for the data visualization.
+- **Description**: Computes relative coordinates for the data visualization, positions of each diagram with respect to the previous ones.
 - **Returns**: None
 - **Notes**: 
   - Calculates relative start and width for attributes and neighbors.
@@ -276,16 +277,10 @@ def generate_json(self) -> bytes:
 Here's an example of how to use the GND class. It is used in a similar way to display the JSON results in HTML at the /data endpoint:
 
 ```python
-gnd = GND(db="example.sqlite", query_range="0-19", scale_factor=7.5, window=10, query=None, uniref_id="", id_type="uniprot", log_file="query_log.csv")
+gnd = GND(db="30093.sqlite", query_range="60-79", scale_factor=7.5, window=10, query=None, uniref_id="", id_type=false, log_file="query_log.csv")
 json_data = gnd.generate_json()
 print(json_data)
 ```
 
-## Notes
-
-- The class uses a context manager (`db_connection`) for handling database connections.
-- Query execution is logged for performance analysis.
-- The class supports both direct and GNN job types, with different processing methods for each.
-- Error handling is implemented throughout the class, with error messages stored in the `output` dictionary.
-- The class includes methods for checking table and column existence, ensuring robust database interactions.
-- A query cache is implemented to optimize performance for repeated queries.
+That class instantiation would be triggered by visiting this endpoint:
+`http://localhost:5100/widgets/data?direct-id=30093&key=52eb593c2fed778dcfd6a2cf16d1f5ced3f3f617&window=10&scale-factor=7.5&range=60-79&id-type=false`
