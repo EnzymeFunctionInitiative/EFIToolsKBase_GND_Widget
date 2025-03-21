@@ -1,6 +1,6 @@
-module-name: sahasWidget
+module-name: EFIToolsKBase_GND_Widget
 
-module-description: A KBase module
+module-description: A KBase module for the Genome Neighborhood Diagram viewing widget.
 
 service-language: python
 

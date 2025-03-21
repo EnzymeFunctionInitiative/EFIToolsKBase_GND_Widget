@@ -1,8 +1,8 @@
 /*
-A KBase module: sahasWidget
+A KBase module: EFIToolsKBase_GND_Widget
 */
 
-module sahasWidget {
+module EFIToolsKBase_GND_Widget {
     typedef structure {
         string report_name;
         string report_ref;
@@ -11,6 +11,6 @@ module sahasWidget {
     /*
         This example function accepts any number of parameters and returns results in a KBaseReport
     */
-    funcdef run_sahasWidget(mapping<string,UnspecifiedObject> params) returns (ReportResults output) authentication required;
+    funcdef run_GND_Widget(mapping<string,UnspecifiedObject> params) returns (ReportResults output) authentication required;
 
 };

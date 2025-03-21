@@ -1,7 +1,7 @@
-SERVICE = sahaswidget
-SERVICE_CAPS = sahasWidget
-SPEC_FILE = sahasWidget.spec
-URL = https://kbase.us/services/sahaswidget
+SERVICE = EFIToolsKBase_GND_Widget
+SERVICE_CAPS = EFIToolsKBase_GND_Widget
+SPEC_FILE = EFIToolsKBase_GND_Widget.spec
+URL = https://kbase.us/services/EFIToolsKBase_GND_Widget
 DIR = $(shell pwd)
 LIB_DIR = lib
 SCRIPTS_DIR = scripts

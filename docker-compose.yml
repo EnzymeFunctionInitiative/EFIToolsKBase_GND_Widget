@@ -4,11 +4,11 @@ networks:
     external: true
     name: kbase-dev
 services:
-  sahaswidget:
+  EFIToolsKBase_GND_Widget:
     build:
       context: .
-    container_name: sahaswidget
-    hostname: sahaswidget
+    container_name: EFIToolsKBase_GND_Widget
+    hostname: EFIToolsKBase_GND_Widget
     dns: 8.8.8.8
     volumes:
       - .:/kb/module
