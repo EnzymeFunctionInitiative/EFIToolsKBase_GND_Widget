@@ -18,11 +18,11 @@ elif [ "${1}" = "async" ] ; then
 elif [ "${1}" = "init" ] ; then
   echo "Initialize module"
   cd /data
-  curl -s -o sample.txt http://example.com/sample.txt
-  echo "Contents of /data volume:"
+  #curl -s -o sample.txt http://example.com/sample.txt
+  #echo "Contents of /data volume:"
   ls -l /data
   echo "End of print"
-  touch __READY__
+  #touch __READY__
 elif [ "${1}" = "bash" ] ; then
   bash
 elif [ "${1}" = "report" ] ; then
