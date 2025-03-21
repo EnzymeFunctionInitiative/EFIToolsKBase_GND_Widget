@@ -13,13 +13,13 @@ from widget.lib.widget_support import WidgetSupport
 #END_HEADER
 
 
-class sahasWidget:
+class EFIToolsKBase_GND_Widget:
     '''
     Module Name:
-    sahasWidget
+    EFIToolsKBase_GND_Widget
 
     Module Description:
-    A KBase module: sahasWidget
+    A KBase module: EFIToolsKBase_GND_Widget
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -60,7 +60,7 @@ class sahasWidget:
         pass
 
 
-    def run_sahasWidget(self, ctx, params):
+    def run_EFIToolsKBase_GND_Widget(self, ctx, params):
         """
         This example function accepts any number of parameters and returns results in a KBaseReport
         :param params: instance of mapping from String to unspecified object
@@ -69,7 +69,7 @@ class sahasWidget:
         """
         # ctx is the context object
         # return variables are: output
-        #BEGIN run_sahasWidget
+        #BEGIN run_EFIToolsKBase_GND_Widget
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         report = KBaseReport(self.callback_url)
         report_info = report.create({'report': {'objects_created':[],
@@ -79,11 +79,11 @@ class sahasWidget:
             'report_name': report_info['name'],
             'report_ref': report_info['ref'],
         }
-        #END run_sahasWidget
+        #END run_EFIToolsKBase_GND_Widget
 
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
-            raise ValueError('Method run_sahasWidget return value ' +
+            raise ValueError('Method run_EFIToolsKBase_GND_Widget return value ' +
                              'output is not type dict as required.')
         # return the results
         return [output]

@@ -53,14 +53,14 @@ def get_config():
     retconfig = {}
     config = ConfigParser()
     config.read(get_config_file())
-    for nameval in config.items(get_service_name() or 'sahasWidget'):
+    for nameval in config.items(get_service_name() or 'EFIToolsKBase_GND_Widget'):
         retconfig[nameval[0]] = nameval[1]
     return retconfig
 
 config = get_config()
 
-from sahasWidget.sahasWidgetImpl import sahasWidget  # noqa @IgnorePep8
-impl_sahasWidget = sahasWidget(config)
+from EFIToolsKBase_GND_Widget.EFIToolsKBase_GND_WidgetImpl import EFIToolsKBase_GND_Widget  # noqa @IgnorePep8
+impl_EFIToolsKBase_GND_Widget = EFIToolsKBase_GND_Widget(config)
 
 
 class JSONObjectEncoder(json.JSONEncoder):
@@ -335,7 +335,7 @@ class Application(object):
                                    context['method'], context['call_id'])
 
     def __init__(self):
-        submod = get_service_name() or 'sahasWidget'
+        submod = get_service_name() or 'EFIToolsKBase_GND_Widget'
         self.userlog = log.log(
             submod, ip_address=True, authuser=True, module=True, method=True,
             call_id=True, changecallback=self.logcallback,
@@ -346,12 +346,12 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
-        self.rpc_service.add(impl_sahasWidget.run_sahasWidget,
-                             name='sahasWidget.run_sahasWidget',
+        self.rpc_service.add(impl_EFIToolsKBase_GND_Widget.run_EFIToolsKBase_GND_Widget,
+                             name='EFIToolsKBase_GND_Widget.run_EFIToolsKBase_GND_Widget',
                              types=[dict])
-        self.method_authentication['sahasWidget.run_sahasWidget'] = 'required'  # noqa
-        self.rpc_service.add(impl_sahasWidget.status,
-                             name='sahasWidget.status',
+        self.method_authentication['EFIToolsKBase_GND_Widget.run_EFIToolsKBase_GND_Widget'] = 'required'  # noqa
+        self.rpc_service.add(impl_EFIToolsKBase_GND_Widget.status,
+                             name='EFIToolsKBase_GND_Widget.status',
                              types=[dict])
         authurl = config.get(AUTH) if config else None
         self.auth_client = _KBaseAuth(authurl)
@@ -419,7 +419,7 @@ class Application(object):
                             err = JSONServerError()
                             err.data = (
                                 'Authentication required for ' +
-                                'sahasWidget ' +
+                                'EFIToolsKBase_GND_Widget ' +
                                 'but no authentication header was passed')
                             raise err
                         elif token is None and auth_req == 'optional':

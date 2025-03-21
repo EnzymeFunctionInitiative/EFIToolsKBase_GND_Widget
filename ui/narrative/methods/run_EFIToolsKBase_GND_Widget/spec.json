@@ -1,6 +1,6 @@
 {
-  "ver": "0.3.6",
-  "authors": ["sahas"],
+  "ver": "0.4.0",
+  "authors": ["sahas", "rbdavid"],
   "contact": "",
   "categories": ["active"],
   "widgets": {
@@ -23,8 +23,8 @@
   "behavior": {
     "service-mapping": {
       "url": "",
-      "name": "sahasWidget",
-      "method": "run_sahasWidget",
+      "name": "EFIToolsKBase_GND_Widget",
+      "method": "run_EFIToolsKBase_GND_Widget",
       "input_mapping": [
         {
           "narrative_system_variable": "workspace",

@@ -4,14 +4,14 @@ import time
 import unittest
 from configparser import ConfigParser
 
-from sahasWidget.sahasWidgetImpl import sahasWidget
-from sahasWidget.sahasWidgetServer import MethodContext
+from EFIToolsKBase_GND_Widget.EFIToolsKBase_GND_WidgetImpl import EFIToolsKBase_GND_Widget
+from EFIToolsKBase_GND_Widget.EFIToolsKBase_GND_WidgetServer import MethodContext
 from installed_clients.authclient import KBaseAuth as _KBaseAuth
 
 from installed_clients.WorkspaceClient import Workspace
 
 
-class sahasWidgetTest(unittest.TestCase):
+class EFIToolsKBase_GND_WidgetTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -20,7 +20,7 @@ class sahasWidgetTest(unittest.TestCase):
         cls.cfg = {}
         config = ConfigParser()
         config.read(config_file)
-        for nameval in config.items('sahasWidget'):
+        for nameval in config.items('EFIToolsKBase_GND_Widget'):
             cls.cfg[nameval[0]] = nameval[1]
         # Getting username from Auth profile for token
         authServiceUrl = cls.cfg['auth-service-url']
@@ -32,14 +32,14 @@ class sahasWidgetTest(unittest.TestCase):
         cls.ctx.update({'token': token,
                         'user_id': user_id,
                         'provenance': [
-                            {'service': 'sahasWidget',
+                            {'service': 'EFIToolsKBase_GND_Widget',
                              'method': 'please_never_use_it_in_production',
                              'method_params': []
                              }],
                         'authenticated': 1})
         cls.wsURL = cls.cfg['workspace-url']
         cls.wsClient = Workspace(cls.wsURL)
-        cls.serviceImpl = sahasWidget(cls.cfg)
+        cls.serviceImpl = EFIToolsKBase_GND_Widget(cls.cfg)
         cls.scratch = cls.cfg['scratch']
         suffix = int(time.time() * 1000)
         cls.wsName = "test_ContigFilter_" + str(suffix)
@@ -62,5 +62,5 @@ class sahasWidgetTest(unittest.TestCase):
         #
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
-        ret = self.serviceImpl.run_sahasWidget(self.ctx, {'workspace_name': self.wsName,
+        ret = self.serviceImpl.run_EFIToolsKBase_GND_Widget(self.ctx, {'workspace_name': self.wsName,
                                                              'parameter_1': 'Hello World!'})

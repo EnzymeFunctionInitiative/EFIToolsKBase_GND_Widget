@@ -7,4 +7,4 @@ rm -rf /kb/module/work/tmp/*
 echo "...done removing temp files."
 export PYTHONPATH=$script_dir/../lib:$PATH:$PYTHONPATH
 cd $script_dir/../test
-python -m nose --with-coverage --cover-package=sahasWidget --cover-html --cover-html-dir=/kb/module/work/test_coverage --nocapture  --nologcapture .
+python -m nose --with-coverage --cover-package=EFIToolsKBase_GND_Widget --cover-html --cover-html-dir=/kb/module/work/test_coverage --nocapture  --nologcapture .
