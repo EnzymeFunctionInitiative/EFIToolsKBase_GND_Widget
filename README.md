@@ -10,9 +10,9 @@ You can also learn more about the apps implemented in this module from its [cata
 
 Also in this repository is documentation on the widget classes implemented to handle the transformation of SQLite data to JSON, and pass information from the SQLite files to the frontend interface. There is also documentation on the JS functions implemented on the frontend for downloading GND specific files.
 
-- Data Widget documentation
-- GND Widget documentation
-- JS function documentation
+- [Data Widget documentation](lib/widget/widgets/data/README.md)
+- [GND Widget documentation](lib/widget/widgets/gnd/README.md)
+- [JS function documentation](lib/widget/widgets/gnd/templates/README.md)
 
 # Setup and test
 
