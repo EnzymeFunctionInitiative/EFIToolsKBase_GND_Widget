@@ -11,5 +11,3 @@ deploy.cfg.orig
 *.bak-*
 # END DS-WIDGET GIT-IGNORE
 
-# ignore massive SQLite files for testing purposes
-7668.sqlite
